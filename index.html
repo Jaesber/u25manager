@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Søllerød GK — Hold Manager 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1a0f;--bg2:#111f13;--bg3:#152017;--bg4:#1a2a1c;
+  --surf:#1e2d20;--brd:rgba(255,255,255,.07);--brd2:rgba(255,255,255,.13);
+  --green:#4ade80;--gd:rgba(74,222,128,.10);--gd2:rgba(74,222,128,.20);
+  --gold:#fbbf24;--goldd:rgba(251,191,36,.10);--goldd2:rgba(251,191,36,.20);
+  --red:#f87171;--redd:rgba(248,113,113,.09);
+  --blue:#60a5fa;--blued:rgba(96,165,250,.09);
+  --text:#e8f0e9;--t2:#9cb89e;--t3:#5a7a5c;--t4:#3a5a3c;
+  --r:12px;--rs:8px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
+
+/* ── Header ── */
+header{background:var(--bg2);border-bottom:1px solid var(--brd);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;gap:1rem}
+.logo{display:flex;align-items:center;gap:.65rem;flex-shrink:0}
+.logo-icon{width:32px;height:32px;background:var(--gd2);border:1px solid rgba(74,222,128,.4);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-text{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700}
+.logo-sub{font-size:.63rem;color:var(--t3);text-transform:uppercase;letter-spacing:.05em}
+.hdr-pill{font-size:.7rem;padding:.25rem .7rem;border-radius:20px;font-weight:600;white-space:nowrap;background:var(--redd);border:1px solid rgba(248,113,113,.3);color:var(--red)}
+
+/* ── Sync bar ── */
+.sync-bar{background:var(--bg3);border-bottom:1px solid var(--brd);padding:.35rem 1.5rem;display:flex;align-items:center;justify-content:space-between;font-size:.72rem;color:var(--t3)}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--t3);display:inline-block;margin-right:.4rem;vertical-align:middle;flex-shrink:0}
+.sdot.syncing{background:var(--gold);animation:pulse .8s ease-in-out infinite}
+.sdot.ok{background:var(--green)}.sdot.err{background:var(--red)}
+
+/* ── Nav ── */
+nav{background:var(--bg2);border-bottom:1px solid var(--brd);display:flex;padding:0 1.5rem;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+.ni{padding:.75rem 1rem;cursor:pointer;font-size:.78rem;font-weight:500;color:var(--t3);border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;flex-shrink:0}
+.ni:hover{color:var(--t2)}.ni.active{color:var(--green);border-bottom-color:var(--green)}
+
+/* ── Layout ── */
+.wrap{max-width:1040px;margin:0 auto;padding:1.25rem 1rem 4rem}
+.page{display:none}.page.active{display:block}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.mt{margin-top:1rem}
+
+/* ── Cards ── */
+.card{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);padding:1.1rem 1.4rem;margin-bottom:.9rem}
+.ch{font-family:'Syne',sans-serif;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--t3);margin-bottom:.9rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.ch em{color:var(--t2);font-family:'Inter',sans-serif;font-size:.72rem;text-transform:none;letter-spacing:0;font-weight:400;font-style:normal;margin-left:auto}
+
+/* ── Stats ── */
+.sr{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:.6rem;margin-bottom:1rem}
+.st{background:var(--bg3);border:1px solid var(--brd);border-radius:var(--rs);padding:.8rem .75rem;text-align:center}
+.sv{font-family:'Syne',sans-serif;font-size:1.85rem;font-weight:700;line-height:1}
+.sl{font-size:.63rem;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
+.cg{color:var(--green)}.cr{color:var(--red)}.co{color:var(--gold)}.cd{color:var(--t2)}
+
+/* ── Tables ── */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:.63rem;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);padding:.4rem .65rem;text-align:left;border-bottom:1px solid var(--brd);font-weight:500}
+.tbl td{padding:.6rem .65rem;border-bottom:1px solid rgba(255,255,255,.04);font-size:.83rem;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+.tbl tr.us-row td{background:var(--gd)}
+.posn{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:var(--t3)}.posn.p1{color:var(--gold)}
+
+/* ── Points rules ── */
+.pt-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem}
+.pt-box{border-radius:var(--rs);padding:.65rem .85rem}
+.pt-box.sg{background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2)}
+.pt-box.fs{background:var(--goldd2);border:1px solid rgba(251,191,36,.25)}
+.pt-box-title{font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:.35rem}
+.pt-box.sg .pt-box-title{color:var(--blue)}.pt-box.fs .pt-box-title{color:var(--gold)}
+.pt-row{display:flex;justify-content:space-between;font-size:.78rem;padding:.1rem 0}
+.pt-val{font-family:'Syne',sans-serif;font-weight:700}
+
+/* ── Match cards (list) ── */
+.mc{background:var(--bg3);border:1px solid var(--brd);border-radius:var(--rs);padding:.65rem .9rem;display:grid;grid-template-columns:78px 1fr auto auto;align-items:center;gap:.75rem;margin-bottom:.35rem;cursor:pointer;transition:border-color .15s}
+.mc:hover{border-color:var(--brd2)}
+.mc.win{border-left:3px solid var(--green)}.mc.loss{border-left:3px solid var(--red)}
+.mc.upcoming{border-left:3px solid var(--gold);opacity:.85}.mc.other{opacity:.5}
+.mcn{font-family:'Syne',sans-serif;font-size:.67rem;color:var(--t3);font-weight:600;line-height:1.5}
+.mcn small{display:block;font-family:'Inter';font-weight:400;font-size:.61rem}
+.mcs{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;text-align:center;min-width:56px;color:var(--t2)}
+.mcs.win{color:var(--green)}.mcs.loss{color:var(--red)}.mcs.up{color:var(--gold);font-size:.82rem}
+.sched-head{font-family:'Syne',sans-serif;font-size:.63rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin:1rem 0 .4rem;padding:.25rem .5rem;background:var(--bg4);border-radius:5px;display:inline-block}
+
+/* ── Match detail ── */
+.mblock{background:var(--bg3);border:1px solid var(--brd);border-radius:var(--rs);margin-bottom:.55rem;overflow:hidden}
+.mblock.sg-block{border-left:3px solid var(--blue)}.mblock.fs-block{border-left:3px solid var(--gold)}
+.mfmt{display:flex;align-items:center;gap:.5rem;padding:.38rem .85rem;background:rgba(0,0,0,.15);border-bottom:1px solid var(--brd)}
+.mbody{display:grid;grid-template-columns:1fr 170px 1fr;align-items:center;padding:.7rem .85rem;gap:.5rem}
+.mside{display:flex;flex-direction:column;gap:2px}
+.mside.r{text-align:right;align-items:flex-end}
+.mpn{font-size:.84rem;font-weight:500}.mhcp{font-size:.7rem;color:var(--t3)}
+.mctr{display:flex;flex-direction:column;align-items:center;gap:4px}
+.arow{display:flex;align-items:center;gap:5px}
+.arr{width:30px;height:26px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;border-radius:3px;flex-shrink:0}
+.arr-l{clip-path:polygon(100% 0%,72% 50%,100% 100%,0 100%,0 0)}
+.arr-r{clip-path:polygon(0 0,72% 0,100% 50%,72% 100%,0 100%)}
+.arr-idle{background:var(--bg4);color:var(--t4)}
+.arr-sol{background:var(--gd2);color:var(--green)}.arr-opp{background:#252e27;color:#4a5e4c}
+.sbox{min-width:54px;text-align:center;background:var(--bg4);border:1px solid var(--brd2);border-radius:4px;padding:.22rem .5rem;font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;color:var(--t2)}
+.sbox.win{background:var(--gd);border-color:rgba(74,222,128,.3);color:var(--green)}
+.sbox.loss{background:var(--redd);border-color:rgba(248,113,113,.2);color:var(--red)}
+.sbox.half{background:var(--goldd2);border-color:rgba(251,191,36,.3);color:var(--gold)}
+.ptlbl{font-size:.67rem;font-weight:600;margin-top:2px}
+.ptlbl.win{color:var(--green)}.ptlbl.loss{color:var(--red)}.ptlbl.half{color:var(--gold)}
+.mnote{font-size:.68rem;color:var(--t3);text-align:center;padding:.25rem .85rem .45rem}
+.score-bar{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.1rem;background:var(--bg4);border-radius:var(--rs);margin-bottom:.9rem}
+.score-num{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:700}
+.score-sub{font-size:.63rem;color:var(--t3);margin-top:2px;text-align:center}
+
+/* ── Badges ── */
+.b{display:inline-flex;align-items:center;padding:.17rem .48rem;border-radius:20px;font-size:.66rem;font-weight:600}
+.bw{background:var(--gd2);color:var(--green);border:1px solid rgba(74,222,128,.25)}
+.bl{background:var(--redd);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.bh{background:var(--goldd2);color:var(--gold);border:1px solid rgba(251,191,36,.25)}
+.bp{background:var(--bg4);color:var(--t3);border:1px solid var(--brd)}
+.bi{background:var(--blued);color:var(--blue);border:1px solid rgba(96,165,250,.2)}
+
+/* ── AI bubble ── */
+.aib{background:var(--bg3);border:1px solid var(--brd2);border-left:3px solid var(--green);border-radius:var(--rs);padding:.85rem 1.1rem;font-size:.84rem;line-height:1.8;margin-bottom:.75rem}
+.aib.tk{color:var(--t3);font-style:italic;animation:pulse 1.5s ease-in-out infinite}
+
+/* ── Lineup slots ── */
+.ls{background:var(--bg3);border:1px solid var(--brd);border-radius:var(--rs);padding:.7rem .9rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.65rem}
+.ls.gld{border-left:3px solid var(--gold)}.ls.grn{border-left:3px solid var(--green)}
+.lsn{font-family:'Syne',sans-serif;font-weight:700;color:var(--t3);font-size:.76rem;min-width:22px}
+.lsname{font-weight:500;font-size:.86rem;flex:1}.lsmeta{font-size:.69rem;color:var(--t3)}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.48rem .95rem;border-radius:7px;border:none;cursor:pointer;font-size:.79rem;font-weight:500;transition:all .15s;font-family:inherit}
+.btn-g{background:var(--gd2);color:var(--green);border:1px solid rgba(74,222,128,.3)}.btn-g:hover{background:rgba(74,222,128,.28)}
+.btn-o{background:var(--goldd2);color:var(--gold);border:1px solid rgba(251,191,36,.3)}.btn-o:hover{background:rgba(251,191,36,.22)}
+.btn-gh{background:var(--bg4);color:var(--t2);border:1px solid var(--brd2)}.btn-gh:hover{background:var(--surf)}
+.br{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem}
+
+/* ── Inputs ── */
+input,select{background:var(--bg4);border:1px solid var(--brd2);border-radius:7px;color:var(--text);font-size:.83rem;padding:.48rem .68rem;width:100%;transition:border-color .15s;font-family:inherit}
+input:focus,select:focus{outline:none;border-color:var(--green)}
+input::placeholder{color:var(--t3)}
+label{font-size:.7rem;color:var(--t3);display:block;margin-bottom:.28rem;font-weight:500}
+
+/* ── Misc ── */
+.sp{display:inline-block;width:13px;height:13px;border:2px solid rgba(74,222,128,.25);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:4px;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:.45}50%{opacity:1}}
+.secl{font-family:'Syne',sans-serif;font-size:.63rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin:1rem 0 .45rem}
+.al{padding:.6rem .85rem;border-radius:var(--rs);font-size:.8rem;margin-bottom:.65rem}
+.al-i{background:var(--blued);border:1px solid rgba(96,165,250,.2);color:#93c5fd}
+.al-w{background:var(--goldd);border:1px solid rgba(251,191,36,.2);color:#e8c97a}
+.al-g{background:var(--gd);border:1px solid rgba(74,222,128,.2);color:var(--green)}
+.rn{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:var(--t3);min-width:18px}
+.rn.r1{color:var(--gold)}.rn.r2{color:var(--t2)}.rn.r3{color:#cd7f32}
+.ht{background:var(--bg4);border:1px solid var(--brd2);color:var(--t2);border-radius:4px;padding:.1rem .38rem;font-size:.68rem;font-weight:500}
+.pb{width:52px;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.pf{height:100%;border-radius:3px}
+
+@media(max-width:600px){
+  .g2{grid-template-columns:1fr}.mc{grid-template-columns:1fr auto}
+  .mbody{grid-template-columns:1fr;gap:.25rem}.mside.r{text-align:left;align-items:flex-start}
+  header,.sync-bar,nav{padding-left:.85rem;padding-right:.85rem}.wrap{padding:1rem .7rem 3rem}
+  .pt-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⛳</div>
+    <div><div class="logo-text">Søllerød GK</div><div class="logo-sub">U25 ØST · Pulje 4 · 2026</div></div>
+  </div>
+  <div id="hdr-pill" class="hdr-pill">Indlæser…</div>
+</header>
+
+<div class="sync-bar">
+  <div style="display:flex;align-items:center"><span class="sdot syncing" id="sdot"></span><span id="stxt">Tjekker GolfBox…</span></div>
+  <button onclick="syncAll(true)" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:.72rem;font-family:inherit">↻ Opdater nu</button>
+</div>
+
+<nav>
+  <div class="ni active" onclick="go('ov',this)">Overblik</div>
+  <div class="ni"        onclick="go('kampe',this)">Kampe</div>
+  <div class="ni"        onclick="go('spillere',this)">Spillere</div>
+  <div class="ni"        onclick="go('opstilling',this)">Opstilling</div>
+  <div class="ni"        onclick="go('analyse',this)">📊 Analyse</div>
+</nav>
+
+<div class="wrap">
+
+<!-- OVERBLIK -->
+<div id="tab-ov" class="page active">
+  <div class="sr" id="ov-stats"></div>
+  <div class="g2">
+    <div>
+      <div class="card">
+        <div class="ch">Puljetabel <em>U25 ØST – Pulje 4</em></div>
+        <table class="tbl" id="stand-tbl"></table>
+      </div>
+      <div class="card">
+        <div class="ch">Pointregler <em><a href="https://www.danskgolfunion.dk/manualer/turneringsbetingelser/dgu/da/topic/hot-7-1-pointgivning" target="_blank" style="color:var(--blue)">DGU §7.1 ↗</a></em></div>
+        <div class="pt-grid">
+          <div class="pt-box sg"><div class="pt-box-title">Singles</div>
+            <div class="pt-row"><span>Vundet</span><span class="pt-val cg">2 pt</span></div>
+            <div class="pt-row"><span>Delt</span><span class="pt-val co">1 pt</span></div>
+            <div class="pt-row"><span>Tabt</span><span class="pt-val cr">0 pt</span></div>
+          </div>
+          <div class="pt-box fs"><div class="pt-box-title">Foursome ⭐</div>
+            <div class="pt-row"><span>Vundet</span><span class="pt-val cg">3 pt</span></div>
+            <div class="pt-row"><span>Delt</span><span class="pt-val co">1,5 pt</span></div>
+            <div class="pt-row"><span>Tabt</span><span class="pt-val cr">0 pt</span></div>
+          </div>
+        </div>
+        <div style="font-size:.74rem;color:var(--t3);line-height:1.7">
+          Format: <strong style="color:var(--t2)">2 singler + 1 foursome = max 7 pt pr. hold</strong><br>
+          Holdkamp vinder: <strong style="color:var(--t2)">2 matchpoint</strong> (1 til hver ved uafgjort)<br>
+          Foursome = <strong style="color:var(--gold)">3/7 pt (43%)</strong> — strategisk afgørende<br>
+          <span style="color:var(--t4)">DGU-regel: af de 2 singles-spillere har pos 1 højest HCP</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="ch">Søllerøds program <em id="sol-prog-sub"></em></div>
+        <div id="ov-matches"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch">Spilleroverblik <em>Optjente point</em></div>
+    <div id="ov-players"></div>
+  </div>
+</div>
+
+<!-- KAMPE -->
+<div id="tab-kampe" class="page">
+  <div class="card">
+    <div class="ch">Komplet kampprogram <em>12 kampe · alle runder</em></div>
+    <div id="all-mc"></div>
+  </div>
+  <div id="match-detail"></div>
+</div>
+
+<!-- SPILLERE -->
+<div id="tab-spillere" class="page">
+  <div class="card">
+    <div class="ch">Søllerød truppen <em id="p-sub"></em></div>
+    <div id="p-tbl"></div>
+  </div>
+  <div class="card">
+    <div class="ch">Opdater handicap <em>Ændringer gemmes og bruges i alle beregninger</em></div>
+    <div id="hcp-edit-rows"></div>
+  </div>
+</div>
+
+<!-- OPSTILLING -->
+<div id="tab-opstilling" class="page">
+  <div class="g2">
+    <div>
+      <div class="card">
+        <div class="ch">Næste kamp <em id="next-lbl"></em></div>
+        <div class="al al-i" id="next-info"></div>
+        <div style="margin-bottom:.75rem">
+          <label>Tilgængelige spillere — klik for at markere</label>
+          <div id="avail-btns" style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"></div>
+        </div>
+        <div class="br">
+          <button class="btn btn-o" onclick="genLineupAlgo()">⚡ Generer opstilling</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch">Spillerbelastning <em>Fordeling over sæsonen</em></div>
+        <div id="load-balance"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="ch">Modstanderspejder <em id="opp-scout-lbl"></em></div>
+        <div id="opp-scout"></div>
+      </div>
+    </div>
+  </div>
+  <div id="lineup-out"></div>
+</div>
+
+<!-- ANALYSE -->
+<div id="tab-analyse" class="page">
+  <div id="analyse-content"></div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  CONSTANTS & STATIC DATA
+// ═══════════════════════════════════════════════════════════════
+
+const PT = {
+  single:   { WIN:2,   HALF:1,   LOSS:0 },
+  foursome: { WIN:3,   HALF:1.5, LOSS:0 },
+};
+// Per-player max in foursome = half (pair shares the points)
+const MAX_PTS = { single:2, foursome:1.5 };
+
+const STANDINGS = [
+  {pos:1,team:'København', k:2,v:2,u:0,t:0,score:'9,5–4,5',mpts:4},
+  {pos:2,team:'Nivå',      k:2,v:1,u:0,t:1,score:'7–7',    mpts:2},
+  {pos:3,team:'Hørsholm',  k:2,v:1,u:0,t:1,score:'6,5–7,5',mpts:2},
+  {pos:4,team:'Søllerød',  k:2,v:0,u:0,t:2,score:'5–9',    mpts:0},
+];
+
+// Full 12-match schedule — dates may be updated by syncSchedule()
+const SCHEDULE = [
+  {nr:'163445',date:'12-05-2026',home:'Nivå',      away:'København', sh:1.5,sa:5.5,done:true, sol:false},
+  {nr:'163444',date:'13-05-2026',home:'Hørsholm',  away:'Søllerød',  sh:5,  sa:2,  done:true, sol:true},
+  {nr:'163446',date:'19-05-2026',home:'Nivå',      away:'Hørsholm',  sh:5.5,sa:1.5,done:true, sol:false},
+  {nr:'163447',date:'21-05-2026',home:'København', away:'Søllerød',  sh:4,  sa:3,  done:true, sol:true},
+  {nr:'163448',date:'27-05-2026',home:'Hørsholm',  away:'København', sh:0,  sa:0,  done:false,sol:false},
+  {nr:'163449',date:'29-05-2026',home:'Søllerød',  away:'Nivå',      sh:0,  sa:0,  done:false,sol:true},
+  {nr:'163451',date:'04-06-2026',home:'København', away:'Nivå',      sh:0,  sa:0,  done:false,sol:false},
+  {nr:'163450',date:'05-06-2026',home:'Søllerød',  away:'Hørsholm',  sh:0,  sa:0,  done:false,sol:true},
+  {nr:'163452',date:'10-06-2026',home:'Hørsholm',  away:'Nivå',      sh:0,  sa:0,  done:false,sol:false},
+  {nr:'163453',date:'12-06-2026',home:'Søllerød',  away:'København', sh:0,  sa:0,  done:false,sol:true},
+  {nr:'163454',date:'18-06-2026',home:'København', away:'Hørsholm',  sh:0,  sa:0,  done:false,sol:false},
+  {nr:'163455',date:'23-06-2026',home:'Nivå',      away:'Søllerød',  sh:0,  sa:0,  done:false,sol:true},
+];
+
+const SOL_TRUPPEN = ['Valdemar Arent Jensen','Ditlev Olsen','Oscar Albertsen','Adrian Lund Kringsholm','Villads Reuther'];
+const SOL_CAPTAIN = 'Adrian Lund Kringsholm';
+
+// SOL_HCP is mutable — updated from GolfBox live data or manually by captain
+// Baseline values (overwritten by localStorage and live GolfBox data)
+const SOL_HCP_BASELINE = {
+  'Valdemar Arent Jensen':   19.3,
+  'Ditlev Olsen':            14.4,
+  'Oscar Albertsen':         36.8,  // updated to 33.7 via GolfBox or manual entry
+  'Adrian Lund Kringsholm':  10.7,
+  'Villads Reuther':          9.7,
+};
+// Load from localStorage (persisted updates override baseline)
+const SOL_HCP_SAVED = JSON.parse(localStorage.getItem('sgk_hcp')||'{}');
+const SOL_HCP = {...SOL_HCP_BASELINE, ...SOL_HCP_SAVED};
+
+function updateHCP(name, hcp){
+  SOL_HCP[name] = hcp;
+  const saved = JSON.parse(localStorage.getItem('sgk_hcp')||'{}');
+  saved[name] = hcp;
+  localStorage.setItem('sgk_hcp', JSON.stringify(saved));
+}
+
+// Called from parseGolfBox — extract Søllerød player HCPs from match HTML
+function updateSolHCPFromMatch(matchData){
+  if(!matchData?.matches) return;
+  const isSolAway = matchData.away === 'Søllerød';
+  matchData.matches.forEach(mx=>{
+    const solPlayers = isSolAway
+      ? [{name:mx.awayPlayer,  hcp:mx.awayHcp},  {name:mx.awayPlayer2, hcp:mx.awayHcp2}]
+      : [{name:mx.homePlayer,  hcp:mx.homeHcp},  {name:mx.homePlayer2, hcp:mx.homeHcp2}];
+    solPlayers.forEach(p=>{
+      if(p.name && SOL_TRUPPEN.includes(p.name) && p.hcp && p.hcp !== SOL_HCP[p.name]){
+        console.log(`HCP opdateret: ${p.name} ${SOL_HCP[p.name]} → ${p.hcp}`);
+        updateHCP(p.name, p.hcp);
+      }
+    });
+  });
+}
+
+// Baseline verified results (fallback if live fetch unavailable)
+const BASELINE = {
+  'Valdemar Arent Jensen': [
+    {nr:'163444',opp:'Hørsholm', oppPlayer:'Lukas Anton Nielsen-Refs',oppHcp:24.3, format:'single',  result:'WIN', pts:2,  scoreStr:'5&4'},
+  ],
+  'Ditlev Olsen': [
+    {nr:'163444',opp:'Hørsholm', oppPlayer:'Oskar Millers',            oppHcp:10.4, format:'single',  result:'LOSS',pts:0,  scoreStr:'2 Up'},
+    {nr:'163447',opp:'København',oppPlayer:'Clara Hauberg/Cecilie BK', oppHcp:'35.6/24.9',format:'foursome',result:'WIN', pts:1.5,scoreStr:'3&1',partner:'Adrian Lund Kringsholm'},
+  ],
+  'Oscar Albertsen': [
+    {nr:'163444',opp:'Hørsholm', oppPlayer:'Storbaek/Filip BL',        oppHcp:'22.9/28.0',format:'foursome',result:'LOSS',pts:0,  scoreStr:'2 Up',partner:'Villads Reuther'},
+    {nr:'163447',opp:'København',oppPlayer:'Ella Vittrup-Bertheussen',  oppHcp:14.5, format:'single',  result:'LOSS',pts:0,  scoreStr:'3&2'},
+  ],
+  'Adrian Lund Kringsholm': [
+    {nr:'163447',opp:'København',oppPlayer:'Clara Hauberg/Cecilie BK', oppHcp:'35.6/24.9',format:'foursome',result:'WIN', pts:1.5,scoreStr:'3&1',partner:'Ditlev Olsen'},
+  ],
+  'Villads Reuther': [
+    {nr:'163444',opp:'Hørsholm', oppPlayer:'Storbaek/Filip BL',        oppHcp:'22.9/28.0',format:'foursome',result:'LOSS',pts:0,  scoreStr:'2 Up',partner:'Oscar Albertsen'},
+    {nr:'163447',opp:'København',oppPlayer:'Johannes Noyè Ostenfeld',  oppHcp:10.0, format:'single',  result:'LOSS',pts:0,  scoreStr:'2 Holes'},
+  ],
+};
+
+// Verified match detail for kampe-fanen
+const MATCH_DETAIL = {
+  '163444':{venue:'Hørsholm Golfklub',date:'13/5/2026',home:'Hørsholm',away:'Søllerød',totalHome:5,totalAway:2,maxPts:7,matches:[
+    {format:'single',  homePlayer:'Lukas Anton Nielsen-Refs',homeHcp:24.3,awayPlayer:'Valdemar Arent Jensen',awayHcp:19.3,winner:'away',scoreStr:'5&4',  note:'Søllerød vandt — Valdemar +2pt'},
+    {format:'single',  homePlayer:'Oskar Millers',           homeHcp:10.4,awayPlayer:'Ditlev Olsen',         awayHcp:14.4,winner:'home',scoreStr:'2 Up', note:'Hørsholm vandt — Oskar Millers (HCP 10.4) mod Ditlev (HCP 14.4)'},
+    {format:'foursome',homePlayer:'Alexander Storbaek',homeHcp:22.9,homePlayer2:'Filip Bech Larsen',homeHcp2:28.0,
+                       awayPlayer:'Villads Reuther',  awayHcp:9.7, awayPlayer2:'Oscar Albertsen',  awayHcp2:36.8,winner:'home',scoreStr:'2 Up',note:'Hørsholm vandt foursome'},
+  ]},
+  '163447':{venue:'Københavns Golf Klub',date:'21/5/2026',home:'København',away:'Søllerød',totalHome:4,totalAway:3,maxPts:7,matches:[
+    {format:'single',  homePlayer:'Ella Vittrup-Bertheussen',homeHcp:14.5,awayPlayer:'Oscar Albertsen',          awayHcp:36.8,winner:'home',scoreStr:'3&2',    note:'København vandt 3&2'},
+    {format:'single',  homePlayer:'Johannes Noyè Ostenfeld', homeHcp:10.0,awayPlayer:'Villads Reuther',          awayHcp:9.7, winner:'home',scoreStr:'2 Holes',note:'København vandt 2 Holes — tæt HCP-matchup'},
+    {format:'foursome',homePlayer:'Clara Hauberg',homeHcp:35.6,homePlayer2:'Cecilie Brandt Krenk',homeHcp2:24.9,
+                       awayPlayer:'Ditlev Olsen', awayHcp:14.4,awayPlayer2:'Adrian Lund Kringsholm',awayHcp2:10.7,winner:'away',scoreStr:'3&1',note:'Søllerød vandt foursome 3&1 ⭐'},
+  ]},
+  '163445':{venue:'Nivå Golf Klub',date:'12/5/2026',home:'Nivå',away:'København',totalHome:1.5,totalAway:5.5,maxPts:7,matches:[
+    {format:'single',  homePlayer:'Sebastian Lauemøller Handreck',homeHcp:12.3,awayPlayer:'Emil Helmbæk',                awayHcp:9.7, winner:'away',scoreStr:'2&1',note:'København vandt 2&1'},
+    {format:'single',  homePlayer:'Sebastian Gottlieb',            homeHcp:24.7,awayPlayer:'Carolina Emilia von Holstein',awayHcp:5.9, winner:'away',scoreStr:'5&3',note:'København dominerede 5&3'},
+    {format:'foursome',homePlayer:'Teodor Macaulay',homeHcp:19.9,homePlayer2:'Viktor Novak Jansen',homeHcp2:47.1,
+                       awayPlayer:'Clara Hauberg', awayHcp:35.6,awayPlayer2:'Cecilie Brandt Krenk',awayHcp2:24.9,winner:'halved',scoreStr:'Delt',note:'Delt foursome'},
+  ]},
+  '163446':{venue:'Nivå Golf Klub',date:'19/5/2026',home:'Nivå',away:'Hørsholm',totalHome:5.5,totalAway:1.5,maxPts:7,matches:[
+    {format:'single',  homePlayer:'Sebastian Gottlieb',            homeHcp:24.7,awayPlayer:'Lukas Anton Nielsen-Refs',awayHcp:24.3,winner:'home',scoreStr:'2&1',note:'Nivå vandt 2&1'},
+    {format:'single',  homePlayer:'Sebastian Lauemøller Handreck',homeHcp:10.7,awayPlayer:'Oskar Millers',            awayHcp:10.4,winner:'home',scoreStr:'5&4',note:'Nivå vandt 5&4 — Handreck slog Millers!'},
+    {format:'foursome',homePlayer:'Teodor Macaulay',homeHcp:19.9,homePlayer2:'Viktor Novak Jansen',homeHcp2:47.3,
+                       awayPlayer:'Alexander Storbaek',awayHcp:22.9,awayPlayer2:'Filip Bech Larsen',awayHcp2:28.0,winner:'halved',scoreStr:'Delt',note:'Delt foursome'},
+  ]},
+};
+
+// Opponent scouting data
+const OPP = {
+  'Hørsholm': {
+    notes:'Oskar Millers (HCP 10.4) farligst i singles — slog Ditlev men tabte 5&4 til Handreck. Storbaek/Bech Larsen er stabil foursome (1 sejr, 1 delt).',
+    players:[
+      {name:'Lukas Anton Nielsen-Refs',hcp:24.3,apps:[{nr:'163444',opp:'Søllerød',format:'single',  result:'LOSS',scoreStr:'5&4'},{nr:'163446',opp:'Nivå',format:'single',  result:'LOSS',scoreStr:'2&1'}]},
+      {name:'Oskar Millers',           hcp:10.4,apps:[{nr:'163444',opp:'Søllerød',format:'single',  result:'WIN', scoreStr:'2 Up'},{nr:'163446',opp:'Nivå',format:'single',  result:'LOSS',scoreStr:'5&4'}]},
+      {name:'Alexander Storbaek',      hcp:22.9,apps:[{nr:'163444',opp:'Søllerød',format:'foursome',result:'WIN', scoreStr:'2 Up',partner:'Filip Bech Larsen'},{nr:'163446',opp:'Nivå',format:'foursome',result:'HALF',scoreStr:'Delt',partner:'Filip Bech Larsen'}]},
+      {name:'Filip Bech Larsen',       hcp:28.0,apps:[{nr:'163444',opp:'Søllerød',format:'foursome',result:'WIN', scoreStr:'2 Up',partner:'Alexander Storbaek'},{nr:'163446',opp:'Nivå',format:'foursome',result:'HALF',scoreStr:'Delt',partner:'Alexander Storbaek'}]},
+    ],
+  },
+  'København': {
+    notes:'Carolina von Holstein (HCP 5.9) og Emil Helmbæk (HCP 9.7) er meget stærke i singles. Hauberg/Krenk foursome er svag (0 sejre, 1 delt, 1 tab) — gentag Ditlev/Adrian her.',
+    players:[
+      {name:'Emil Helmbæk',                  hcp:9.7, apps:[{nr:'163445',opp:'Nivå',     format:'single',  result:'WIN', scoreStr:'2&1'}]},
+      {name:'Carolina Emilia von Holstein',   hcp:5.9, apps:[{nr:'163445',opp:'Nivå',     format:'single',  result:'WIN', scoreStr:'5&3'}]},
+      {name:'Ella Vittrup-Bertheussen',       hcp:14.5,apps:[{nr:'163447',opp:'Søllerød', format:'single',  result:'WIN', scoreStr:'3&2'}]},
+      {name:'Johannes Noyè Ostenfeld',        hcp:10.0,apps:[{nr:'163447',opp:'Søllerød', format:'single',  result:'WIN', scoreStr:'2 Holes'}]},
+      {name:'Clara Hauberg',                  hcp:35.6,apps:[{nr:'163445',opp:'Nivå',     format:'foursome',result:'HALF',scoreStr:'Delt',partner:'Cecilie Brandt Krenk'},{nr:'163447',opp:'Søllerød',format:'foursome',result:'LOSS',scoreStr:'3&1',partner:'Cecilie Brandt Krenk'}]},
+      {name:'Cecilie Brandt Krenk',           hcp:24.9,apps:[{nr:'163445',opp:'Nivå',     format:'foursome',result:'HALF',scoreStr:'Delt',partner:'Clara Hauberg'},{nr:'163447',opp:'Søllerød',format:'foursome',result:'LOSS',scoreStr:'3&1',partner:'Clara Hauberg'}]},
+    ],
+  },
+  'Nivå': {
+    notes:'Bruger ALTID samme 4 spillere. Handreck (HCP 10.7) er farlig — slog Oskar Millers 5&4! Gottlieb (HCP 24.7) mere overkommelig. Foursome har aldrig vundet (2 delinger).',
+    players:[
+      {name:'Sebastian Lauemøller Handreck',hcp:10.7,apps:[{nr:'163445',opp:'København',format:'single',  result:'LOSS',scoreStr:'2&1'},{nr:'163446',opp:'Hørsholm',format:'single',  result:'WIN', scoreStr:'5&4'}]},
+      {name:'Sebastian Gottlieb',           hcp:24.7,apps:[{nr:'163445',opp:'København',format:'single',  result:'LOSS',scoreStr:'5&3'},{nr:'163446',opp:'Hørsholm',format:'single',  result:'WIN', scoreStr:'2&1'}]},
+      {name:'Teodor Macaulay',              hcp:19.9,apps:[{nr:'163445',opp:'København',format:'foursome',result:'HALF',scoreStr:'Delt',partner:'Viktor Novak Jansen'},{nr:'163446',opp:'Hørsholm',format:'foursome',result:'HALF',scoreStr:'Delt',partner:'Viktor Novak Jansen'}]},
+      {name:'Viktor Novak Jansen',          hcp:47.1,apps:[{nr:'163445',opp:'København',format:'foursome',result:'HALF',scoreStr:'Delt',partner:'Teodor Macaulay'},{nr:'163446',opp:'Hørsholm',format:'foursome',result:'HALF',scoreStr:'Delt',partner:'Teodor Macaulay'}]},
+    ],
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+let CACHE = JSON.parse(localStorage.getItem('sgk_cache')||'{}');
+let PREFS = JSON.parse(localStorage.getItem('sgk_prefs')||'{}');
+PREFS.available = PREFS.available||[];
+function saveCache(){ localStorage.setItem('sgk_cache',JSON.stringify(CACHE)); }
+function savePrefs(){ localStorage.setItem('sgk_prefs',JSON.stringify(PREFS)); }
+
+// Live results (rebuilt from cache + baseline)
+let LIVE_RESULTS = {};
+
+function getResults(name){ return LIVE_RESULTS[name]||BASELINE[name]||[]; }
+
+function effectiveSched(){
+  return SCHEDULE.map(m=>{
+    if(!m.sol||!CACHE[m.nr]) return m;
+    const c=CACHE[m.nr];
+    return {...m,sh:c.totalHome,sa:c.totalAway,done:c.done||c.totalHome>0||c.totalAway>0};
+  });
+}
+
+function nextSol(){ return effectiveSched().find(m=>m.sol&&!m.done); }
+
+// ═══════════════════════════════════════════════════════════════
+//  STATS HELPERS
+// ═══════════════════════════════════════════════════════════════
+function pStats(name){
+  const res=getResults(name);
+  const played=res.length;
+  const pts=res.reduce((a,r)=>a+(r.pts||0),0);
+  const wins=res.filter(r=>r.result==='WIN').length;
+  const halves=res.filter(r=>r.result==='HALF').length;
+  const winPct=played?Math.round((wins+halves*.5)/played*100):null;
+  const maxPts=res.reduce((a,r)=>a+MAX_PTS[r.format],0);
+  const ptPct=maxPts?Math.round(pts/maxPts*100):null;
+  const singles=res.filter(r=>r.format==='single');
+  const foursome=res.filter(r=>r.format==='foursome');
+  return{played,pts,wins,halves,winPct,ptPct,maxPts,singles,foursome,results:res};
+}
+
+function playerLoad(name){
+  const res=getResults(name);
+  return{singles:res.filter(r=>r.format==='single').length,foursome:res.filter(r=>r.format==='foursome').length,total:res.length};
+}
+
+function solScore(m){return m.away==='Søllerød'?{us:m.sa,them:m.sh}:{us:m.sh,them:m.sa};}
+function outcome(m){if(!m.done)return 'upcoming';const{us,them}=solScore(m);return us>them?'win':us<them?'loss':'draw';}
+function fmtP(p){return Number.isInteger(p)?String(p):p.toFixed(1);}
+
+// ═══════════════════════════════════════════════════════════════
+//  GOLFBOX LIVE FETCH & PARSE
+// ═══════════════════════════════════════════════════════════════
+// Fetch via CORS proxy — tries multiple proxies in sequence
+async function gfetch(url){
+  const timeout = ms => new Promise((_,rej)=>setTimeout(()=>rej('timeout'),ms));
+
+  // Build proxy URL — use our own Netlify Function which has no CORS issues
+  let proxyUrl;
+  const matchM = url.match(/match=(\d+)/);
+  const compM  = url.match(/competition=(\d+)/);
+  if(matchM){
+    proxyUrl = `/.netlify/functions/golfbox?match=${matchM[1]}`;
+  } else if(compM){
+    proxyUrl = `/.netlify/functions/golfbox?competition=${compM[1]}`;
+  } else {
+    return '';
+  }
+
+  // Try our own proxy first (works on Netlify)
+  try{
+    const r = await Promise.race([fetch(proxyUrl, {cache:'no-store'}), timeout(10000)]);
+    if(r.ok){
+      const t = await r.text();
+      if(t && t.length > 200) return t;
+    }
+  }catch(_){}
+
+  // Fallback: allorigins (works if not running from file://)
+  try{
+    const encoded = encodeURIComponent(url);
+    const r = await Promise.race([
+      fetch(`https://api.allorigins.win/get?url=${encoded}&t=${Date.now()}`, {cache:'no-store'}),
+      timeout(8000)
+    ]);
+    if(r.ok){ const j=await r.json(); if(j.contents&&j.contents.length>200) return j.contents; }
+  }catch(_){}
+
+  return '';
+}
+
+async function syncSchedule(){
+  const html=await gfetch(`https://tour.golfbox.dk/Interclub/scores.aspx?competition=5593554&dgu=1`);
+  if(!html)return false;
+  const doc=(new DOMParser()).parseFromString(html,'text/html');
+  const lines=(doc.body?.innerText||'').split('\n').map(l=>l.trim()).filter(Boolean);
+  const nrRe=/^(163\d{3})$/,dtRe=/^(\d{2}-\d{2}-\d{4})$/;
+  let changed=false;
+  for(let i=0;i<lines.length;i++){
+    if(!nrRe.test(lines[i]))continue;
+    const nr=lines[i];
+    for(let j=i+1;j<Math.min(i+6,lines.length);j++){
+      if(dtRe.test(lines[j])){
+        const idx=SCHEDULE.findIndex(m=>m.nr===nr);
+        if(idx>=0&&SCHEDULE[idx].date!==lines[j]){
+          SCHEDULE[idx].date=lines[j];
+          if(CACHE[nr])CACHE[nr].date=lines[j];
+          changed=true;
+        }
+        break;
+      }
+    }
+  }
+  return changed;
+}
+
+function parseGolfBox(html,nr){
+  const m=SCHEDULE.find(x=>x.nr===nr);
+  if(!m)return null;
+  const doc=(new DOMParser()).parseFromString(html,'text/html');
+  if(!doc.body?.innerText.includes(nr))return null;
+  const lines=(doc.body.innerText||'').split('\n').map(l=>l.trim()).filter(Boolean);
+  const nameRe=/^([A-ZÆØÅ][a-zæøå]+(?:[- ][A-ZÆØÅ]?[a-zæøå\-]+){1,4})$/;
+  const hcpRe=/^\(HCP ([\d.,]+)\)$/;
+  const winnerRe=/^(Hørsholm|Søllerød|København|Nivå|Match halved|Delt match)$/i;
+  const matches=[];
+  let curFmt='single',i=0;
+  while(i<lines.length){
+    const l=lines[i];
+    if(l==='Single'){curFmt='single';i++;continue;}
+    if(l==='Foursome'){curFmt='foursome';i++;continue;}
+    if(nameRe.test(l)&&i+1<lines.length&&hcpRe.test(lines[i+1])){
+      const block={format:curFmt,players:[]};
+      const max=curFmt==='foursome'?4:2;
+      while(i<lines.length&&block.players.length<max){
+        if(nameRe.test(lines[i])&&i+1<lines.length&&hcpRe.test(lines[i+1])){
+          block.players.push({name:lines[i],hcp:parseFloat(lines[i+1].match(hcpRe)[1].replace(',','.'))});
+          i+=2;
+        } else if(lines[i]==='Single'||lines[i]==='Foursome'||lines[i]==='HOLDKAPTAJN'||lines[i]==='TEAM CAPTAIN'){break;}
+        else{i++;}
+      }
+      let winner=null,scoreStr='?',hu=0,ht=0;
+      for(let j=i;j<Math.min(i+20,lines.length);j++){
+        if(winnerRe.test(lines[j])){
+          const lj=lines[j].toLowerCase();
+          if(lj.includes('halved')||lj.includes('delt'))winner='halved';
+          else winner=lines[j].trim();
+          for(let k=j+1;k<Math.min(j+8,lines.length);k++){
+            if(/^\d+$/.test(lines[k])){if(!hu)hu=parseInt(lines[k]);else if(!ht){ht=parseInt(lines[k]);break;}}
+          }
+          scoreStr=winner==='halved'?'Delt':hu>0?(ht===0?`${hu} Up`:`${hu}&${ht}`):'?';
+          break;
+        }
+      }
+      if(block.players.length>=2&&winner!==null){
+        const np=curFmt==='foursome'?2:1;
+        const hp=block.players.slice(0,np),ap=block.players.slice(np,np*2);
+        const ws=winner==='halved'?'halved':winner===m.home?'home':winner===m.away?'away':'unknown';
+        const entry={format:curFmt,homePlayer:hp[0]?.name||'',homeHcp:hp[0]?.hcp||0,awayPlayer:ap[0]?.name||'',awayHcp:ap[0]?.hcp||0,winner:ws,scoreStr};
+        if(curFmt==='foursome'){entry.homePlayer2=hp[1]?.name||'';entry.homeHcp2=hp[1]?.hcp||0;entry.awayPlayer2=ap[1]?.name||'';entry.awayHcp2=ap[1]?.hcp||0;}
+        const isSolAway=m.away==='Søllerød';
+        const solWon=ws===(isSolAway?'away':'home');
+        const isHalf=ws==='halved';
+        const full=solWon?PT[curFmt].WIN:isHalf?PT[curFmt].HALF:0;
+        const solPts=curFmt==='foursome'?full/2:full;
+        entry.note=ws==='halved'?`Delt — Søllerød +${fmtP(PT[curFmt].HALF/2)}pt ea`:solWon?`Søllerød vandt ${scoreStr} — +${fmtP(solPts)}pt`:`${winner} vandt ${scoreStr} — Søllerød +0pt`;
+        matches.push(entry);
+      }
+    }else{i++;}
+  }
+  if(!matches.length)return null;
+  let th=0,ta=0;
+  matches.forEach(mx=>{const pm=PT[mx.format].WIN;if(mx.winner==='home')th+=pm;else if(mx.winner==='away')ta+=pm;else if(mx.winner==='halved'){th+=pm/2;ta+=pm/2;}});
+  return{nr,venue:'',date:'',home:m.home,away:m.away,totalHome:th,totalAway:ta,maxPts:7,done:true,matches,fetchedAt:new Date().toISOString()};
+}
+
+function rebuildResults(){
+  const R={};
+  SOL_TRUPPEN.forEach(n=>R[n]=[...(BASELINE[n]||[])]);
+  Object.values(CACHE).forEach(cd=>{
+    if(!cd?.matches)return;
+    const isSolAway=cd.away==='Søllerød';
+    const opp=isSolAway?cd.home:cd.away;
+    cd.matches.forEach(mx=>{
+      const solPl=isSolAway?[mx.awayPlayer,mx.awayPlayer2]:[mx.homePlayer,mx.homePlayer2];
+      const oppPl=isSolAway?[mx.homePlayer,mx.homePlayer2]:[mx.awayPlayer,mx.awayPlayer2];
+      const oppHcp=isSolAway?(mx.homeHcp2?`${mx.homeHcp}/${mx.homeHcp2}`:mx.homeHcp):(mx.awayHcp2?`${mx.awayHcp}/${mx.awayHcp2}`:mx.awayHcp);
+      const solWon=mx.winner===(isSolAway?'away':'home');
+      const isHalf=mx.winner==='halved';
+      const result=solWon?'WIN':isHalf?'HALF':'LOSS';
+      const full=solWon?PT[mx.format].WIN:isHalf?PT[mx.format].HALF:0;
+      const pts=mx.format==='foursome'?full/2:full;
+      solPl.filter(Boolean).forEach((name,i)=>{
+        if(!R[name])R[name]=[];
+        if(R[name].find(r=>r.nr===cd.nr&&r.format===mx.format))return;
+        R[name].push({nr:cd.nr,opp,oppPlayer:oppPl.filter(Boolean).join('/'),oppHcp,format:mx.format,result,pts,scoreStr:mx.scoreStr,partner:solPl[1-i]||null});
+      });
+    });
+  });
+  LIVE_RESULTS=R;
+}
+
+// Rebuild OPP scouting data from all cached matches (not just Søllerød's)
+// This means new results between opponents automatically improve our scouting
+function rebuildOppData(){
+  // Start from hardcoded baseline
+  const fresh = {
+    'Hørsholm': { notes: OPP['Hørsholm'].notes, players: {} },
+    'København': { notes: OPP['København'].notes, players: {} },
+    'Nivå':      { notes: OPP['Nivå'].notes,      players: {} },
+  };
+
+  // Seed with baseline appearances
+  ['Hørsholm','København','Nivå'].forEach(team=>{
+    OPP[team].players.forEach(p=>{
+      fresh[team].players[p.name] = { name:p.name, hcp:p.hcp, apps:[...p.apps] };
+    });
+  });
+
+  // Merge in any newly cached match data for non-Søllerød matches
+  Object.values(CACHE).forEach(cd=>{
+    if(!cd?.matches) return;
+    const homeTeam = cd.home, awayTeam = cd.away;
+    // Skip Søllerød matches (already handled in rebuildResults)
+    if(homeTeam==='Søllerød'||awayTeam==='Søllerød') return;
+    // Only process matches involving our opponents
+    const teamsInvolved = [homeTeam, awayTeam].filter(t=>fresh[t]);
+    if(!teamsInvolved.length) return;
+
+    cd.matches.forEach(mx=>{
+      // For each team in this match, record their players' appearances
+      [[homeTeam, 'home'],[awayTeam,'away']].forEach(([team, side])=>{
+        if(!fresh[team]) return;
+        const pl = side==='home'
+          ? [mx.homePlayer, mx.homePlayer2].filter(Boolean)
+          : [mx.awayPlayer, mx.awayPlayer2].filter(Boolean);
+        const hcps = side==='home'
+          ? [mx.homeHcp, mx.homeHcp2]
+          : [mx.awayHcp, mx.awayHcp2];
+        const won  = mx.winner===side;
+        const half = mx.winner==='halved';
+        const result = won?'WIN':half?'HALF':'LOSS';
+        const opp  = side==='home' ? awayTeam : homeTeam;
+
+        pl.forEach((name,i)=>{
+          if(!name) return;
+          if(!fresh[team].players[name]){
+            fresh[team].players[name] = { name, hcp: hcps[i]||0, apps:[] };
+          } else if(hcps[i]) {
+            // Update HCP if we have a newer value
+            fresh[team].players[name].hcp = hcps[i];
+          }
+          // Avoid duplicate appearances for same match+format
+          const already = fresh[team].players[name].apps.find(a=>a.nr===cd.nr&&a.format===mx.format);
+          if(!already){
+            fresh[team].players[name].apps.push({
+              nr: cd.nr, opp, format: mx.format,
+              result, scoreStr: mx.scoreStr||'?',
+              partner: pl[1-i]||null,
+            });
+          }
+        });
+      });
+    });
+  });
+
+  // Write back to OPP, converting players dict back to array
+  ['Hørsholm','København','Nivå'].forEach(team=>{
+    OPP[team] = {
+      notes:   fresh[team].notes,
+      players: Object.values(fresh[team].players),
+    };
+  });
+
+  // Recompute notes based on updated records
+  ['Hørsholm','København','Nivå'].forEach(team=>{
+    const fsPl = OPP[team].players.filter(p=>p.apps.some(a=>a.format==='foursome'));
+    const sgPl = OPP[team].players.filter(p=>p.apps.some(a=>a.format==='single'))
+                   .sort((a,b)=>a.hcp-b.hcp);
+    const fsWins  = fsPl[0]?.apps.filter(a=>a.result==='WIN').length||0;
+    const fsTotal = fsPl[0]?.apps.length||0;
+    const fsRec   = fsPl[0]?.apps.map(a=>a.result==='WIN'?'V':a.result==='LOSS'?'T':'D').join('')||'';
+    const danger  = sgPl.find(p=>p.hcp<12&&p.apps.filter(a=>a.result==='WIN').length>0);
+    const weak    = sgPl.find(p=>p.hcp>20);
+
+    // Build auto-generated note (preserve manual note if no live data yet)
+    if(fsPl.length || sgPl.length){
+      const parts = [];
+      if(fsRec) parts.push(`Foursome: ${fsRec} (${fsTotal} kampe)`);
+      if(danger) parts.push(`⚠️ ${danger.name.split(' ').slice(-1)[0]} (HCP ${danger.hcp}) er farlig i singles`);
+      if(weak)   parts.push(`${weak.name.split(' ').slice(-1)[0]} (HCP ${weak.hcp}) er overkommelig`);
+      if(fsWins===0&&fsTotal>=2) parts.push(`Foursome har ${fsTotal===2?'aldrig':'sjældent'} vundet — angrib her`);
+      OPP[team].notes = parts.join('. ');
+    }
+  });
+}
+
+// Rebuild standings dynamically from all cached match scores
+// Falls back to hardcoded STANDINGS if no live data yet
+function rebuildStandings(){
+  const teams = ['Søllerød','Hørsholm','København','Nivå'];
+  const stats = {};
+  teams.forEach(t=>stats[t]={k:0,v:0,u:0,tab:0,kpFor:0,kpMod:0,mpts:0});
+
+  SCHEDULE.forEach(m=>{
+    if(!m.done) return;
+    const h=m.home, a=m.away;
+    if(!stats[h]||!stats[a]) return;
+    stats[h].k++; stats[a].k++;
+    stats[h].kpFor+=m.sh; stats[h].kpMod+=m.sa;
+    stats[a].kpFor+=m.sa; stats[a].kpMod+=m.sh;
+    if(m.sh>m.sa){
+      stats[h].v++; stats[h].mpts+=2;
+      stats[a].tab++;
+    } else if(m.sa>m.sh){
+      stats[a].v++; stats[a].mpts+=2;
+      stats[h].tab++;
+    } else {
+      stats[h].u++; stats[h].mpts+=1;
+      stats[a].u++; stats[a].mpts+=1;
+    }
+  });
+
+  // Only update STANDINGS if we have live data (at least one match parsed)
+  const total = Object.values(stats).reduce((a,s)=>a+s.k,0);
+  if(total===0) return; // no live data — keep hardcoded baseline
+
+  const updated = teams.map(t=>{
+    const s=stats[t];
+    const score = s.kpFor % 1===0 ? `${s.kpFor}–${s.kpMod}` : `${s.kpFor.toFixed(1)}–${s.kpMod.toFixed(1)}`;
+    return {team:t, k:s.k, v:s.v, u:s.u, t:s.tab, score, mpts:s.mpts};
+  }).sort((a,b)=>b.mpts-a.mpts || b.score.localeCompare(a.score));
+
+  updated.forEach((row,i)=>{ row.pos=i+1; });
+  // Replace STANDINGS array in place
+  STANDINGS.length=0;
+  updated.forEach(r=>STANDINGS.push(r));
+}
+
+
+
+let syncing = false;
+
+async function syncAll(force=false){
+  if(syncing)return;
+  syncing=true;
+  let updated=0,errors=0,cached_count=0;
+  const total=SCHEDULE.length;
+  let step=0;
+
+  for(const m of SCHEDULE){
+    step++;
+    setSyncUI('syncing',`[${step}/${total}] Kamp ${m.nr}…`);
+    const cached=CACHE[m.nr];
+    if(!force&&cached){
+      const age=(Date.now()-new Date(cached.fetchedAt||0).getTime())/60000;
+      if(age<30){ cached_count++; setSyncUI('syncing',`[${step}/${total}] Kamp ${m.nr} — cache`); continue; }
+    }
+    try{
+      const html=await gfetch(`https://tour.golfbox.dk/Interclub/scores.aspx?match=${m.nr}&dgu=1`);
+      const parsed=html?parseGolfBox(html,m.nr):null;
+      if(parsed){
+        CACHE[m.nr]=parsed;
+        updateSolHCPFromMatch(parsed);
+        const idx=SCHEDULE.findIndex(x=>x.nr===m.nr);
+        if(idx>=0){SCHEDULE[idx].sh=parsed.totalHome;SCHEDULE[idx].sa=parsed.totalAway;SCHEDULE[idx].done=true;}
+        updated++;
+      } else { errors++; }
+    }catch(_){ errors++; }
+  }
+
+  try{ await syncSchedule(); }catch(_){}
+
+  saveCache();
+  syncing=false;
+  rebuildResults();
+  rebuildOppData();
+  rebuildStandings();
+  renderAll();
+  const now=new Date().toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});
+  const parts=[];
+  if(updated) parts.push(updated+' nye resultater');
+  if(cached_count&&!updated) parts.push(`cache (${cached_count})`);
+  if(!parts.length) parts.push('ingen ændringer');
+  if(errors) parts.push(errors+' fejl');
+  setSyncUI(errors&&!updated?'err':'ok',`${now} — ${parts.join(' · ')}`);
+}
+
+async function syncMatch(nr){
+  setSyncUI('syncing',`Henter kamp ${nr}…`);
+  try{
+    const html=await gfetch(`https://tour.golfbox.dk/Interclub/scores.aspx?match=${nr}&dgu=1`);
+    const parsed=html?parseGolfBox(html,nr):null;
+    if(parsed){
+      CACHE[nr]=parsed;
+      updateSolHCPFromMatch(parsed);
+      const idx=SCHEDULE.findIndex(x=>x.nr===nr);
+      if(idx>=0){SCHEDULE[idx].sh=parsed.totalHome;SCHEDULE[idx].sa=parsed.totalAway;SCHEDULE[idx].done=true;}
+      saveCache();rebuildResults();rebuildOppData();rebuildStandings();renderAll();showDetail(nr);
+      setSyncUI('ok','Opdateret nu');
+    }else{setSyncUI('err',`Ingen nye data for kamp ${nr}`);}
+  }catch(_){setSyncUI('err','Fetch fejlede');}
+}
+
+function setSyncUI(state,msg){
+  const d=document.getElementById('sdot'),t=document.getElementById('stxt');
+  if(d)d.className='sdot '+state;
+  if(t)t.textContent=msg;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════════════
+function renderAll(){
+  const sched=effectiveSched();
+  renderOv(sched);
+  renderAllMatches(sched);
+  renderPlayers();
+  renderAvail(sched);
+  updateHeader(sched);
+}
+
+function updateHeader(sched){
+  const left=sched.filter(m=>m.sol&&!m.done).length;
+  const pill=document.getElementById('hdr-pill');
+  if(pill)pill.textContent=`4. plads · 0 matchpoint · ${left} kampe tilbage`;
+}
+
+// ── Overblik ──────────────────────────────────────────────────
+function renderOv(sched){
+  const solM=sched.filter(m=>m.sol);
+  const played=solM.filter(m=>m.done).length;
+  const left=solM.filter(m=>!m.done).length;
+  const totalPts=SOL_TRUPPEN.reduce((a,n)=>a+pStats(n).pts,0);
+  const totalWins=SOL_TRUPPEN.reduce((a,n)=>a+pStats(n).wins,0);
+  document.getElementById('ov-stats').innerHTML=`
+    <div class="st"><div class="sv cd">${played}</div><div class="sl">Kampe spillet</div></div>
+    <div class="st"><div class="sv co">${left}</div><div class="sl">Kampe tilbage</div></div>
+    <div class="st"><div class="sv cr">0</div><div class="sl">Matchpoint</div></div>
+    <div class="st"><div class="sv co">${fmtP(totalPts)}</div><div class="sl">Kamppoint</div></div>
+    <div class="st"><div class="sv cg">${totalWins}</div><div class="sl">Individ. sejre</div></div>
+    <div class="st"><div class="sv cr">4.</div><div class="sl">Placering</div></div>`;
+  document.getElementById('stand-tbl').innerHTML=
+    `<thead><tr><th>#</th><th>Hold</th><th>K</th><th>V</th><th>U</th><th>T</th><th>Kamppoint</th><th>Matchpt</th></tr></thead><tbody>`+
+    STANDINGS.map(r=>`<tr class="${r.team==='Søllerød'?'us-row':''}">
+      <td><span class="posn ${r.pos===1?'p1':''}">${r.pos}</span></td>
+      <td style="font-weight:${r.team==='Søllerød'?600:400};font-size:.85rem">${r.team}</td>
+      <td>${r.k}</td><td>${r.v}</td><td>${r.u}</td><td>${r.t}</td>
+      <td style="font-family:'Syne',sans-serif;font-size:.8rem;color:var(--t2)">${r.score}</td>
+      <td style="font-family:'Syne',sans-serif;font-weight:700;color:${r.mpts>0?'var(--green)':'var(--t3)'}">${r.mpts}</td>
+    </tr>`).join('')+`</tbody>`;
+  document.getElementById('sol-prog-sub').textContent=`${played} spillet · ${left} tilbage`;
+  document.getElementById('ov-matches').innerHTML=solM.map(m=>{
+    const out=outcome(m);const{us,them}=m.done?solScore(m):{us:0,them:0};
+    const opp=m.home==='Søllerød'?m.away:m.home;
+    return `<div class="mc ${m.done?out:'upcoming'}" onclick="showDetail('${m.nr}')">
+      <div class="mcn">${m.nr}<small>${m.date}</small></div>
+      <div><div style="font-weight:500;font-size:.85rem">vs. ${opp}</div>
+        <div style="font-size:.68rem;color:var(--t3)">${m.home==='Søllerød'?'Hjemme':'Ude'}</div></div>
+      ${m.done?`<div class="mcs ${out}">${us} – ${them}</div>`:`<div class="mcs up">${m.date.slice(0,5)}</div>`}
+      <span class="b ${m.done?(out==='win'?'bw':out==='loss'?'bl':'bp'):'bi'}">${m.done?(out==='win'?'Vundet':out==='loss'?'Tabt':'Uafgjort'):'Kommende'}</span>
+    </div>`;
+  }).join('');
+  const ranked=SOL_TRUPPEN.map(n=>({name:n,hcp:SOL_HCP[n],captain:n===SOL_CAPTAIN,...pStats(n)})).sort((a,b)=>b.pts-a.pts||(b.ptPct||0)-(a.ptPct||0));
+  document.getElementById('ov-players').innerHTML=`<table class="tbl">
+    <thead><tr><th>#</th><th>Spiller</th><th>HCP</th><th>Kampe</th><th>Pt / Maks</th><th>Pt%</th><th>Format</th></tr></thead>
+    <tbody>`+ranked.map((p,i)=>{
+      const pct=p.ptPct,bc=pct===null?'#444':pct>=60?'#4ade80':pct>=40?'#fbbf24':'#f87171';
+      const tag=pct===null?'<span class="b bp">–</span>':pct>=60?'<span class="b bw">🔥 Top</span>':pct>=40?'<span class="b bh">Solid</span>':'<span class="b bl">Needs form</span>';
+      const fmts=[...new Set(p.results.map(r=>r.format==='single'?'Singles':'Foursome'))].join('+');
+      return `<tr>
+        <td><span class="rn ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${i+1}</span></td>
+        <td style="font-weight:500">${p.name}${p.captain?' <span class="b bi" style="font-size:.6rem">K</span>':''}</td>
+        <td><span class="ht">HCP ${p.hcp}</span></td>
+        <td>${p.played}</td>
+        <td><strong style="font-family:'Syne',sans-serif;color:var(--gold)">${fmtP(p.pts)}</strong> <span style="color:var(--t3);font-size:.75rem">/ ${fmtP(p.maxPts)}</span></td>
+        <td><div style="display:flex;align-items:center;gap:.4rem">${tag}<div class="pb"><div class="pf" style="width:${pct||0}%;background:${bc}"></div></div></div></td>
+        <td style="font-size:.72rem;color:var(--t3)">${fmts||'–'}</td>
+      </tr>`;
+    }).join('')+`</tbody></table>`;
+}
+
+// ── Alle kampe ────────────────────────────────────────────────
+function renderAllMatches(sched){
+  const toISO = d => d.split('-').reverse().join('-'); // DD-MM-YYYY → YYYY-MM-DD
+  const sorted = [...sched].sort((a,b)=>toISO(a.date).localeCompare(toISO(b.date)));
+  document.getElementById('all-mc').innerHTML = sorted.map(m=>mcCard(m)).join('');
+}
+
+function mcCard(m){
+  const isSol=m.sol,out=isSol?outcome(m):'';
+  const cls=!m.done?'upcoming':isSol?out:'other';
+  return `<div class="mc ${cls}" onclick="showDetail('${m.nr}')">
+    <div class="mcn">${m.nr}<small>${m.date}</small></div>
+    <div><div style="font-weight:500;font-size:.84rem">${m.home} <span style="color:var(--t3)">vs</span> ${m.away}</div>
+      <div style="font-size:.67rem;color:${isSol?'var(--green)':'var(--t3)'}">${isSol?'▶ Søllerød':'Anden kamp'}</div></div>
+    <div class="mcs ${m.done&&isSol?out:''}" style="${!m.done?'color:var(--gold)':!isSol?'color:var(--t3)':''}">${m.done?m.sh+' – '+m.sa:'–'}</div>
+    <span class="b ${!m.done?'bi':isSol&&out==='win'?'bw':isSol&&out==='loss'?'bl':'bp'}">${!m.done?'Kommende ↗':isSol&&out==='win'?'Vundet':isSol&&out==='loss'?'Tabt':'Spillet'}</span>
+  </div>`;
+}
+
+// ── Kamp detail ───────────────────────────────────────────────
+function showDetail(nr){
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni')[1].classList.add('active');
+  document.getElementById('tab-kampe').classList.add('active');
+  const el=document.getElementById('match-detail');
+  const sched=effectiveSched();
+  const m=sched.find(x=>x.nr===nr);
+  if(!m){el.innerHTML='';return;}
+  if(!m.done){
+    const opp=m.home==='Søllerød'?m.away:m.home;
+    el.innerHTML=`<div class="card mt"><div class="ch">Kamp ${nr} <em>${m.date} · ${m.home==='Søllerød'?'Hjemme':'Ude'}</em></div>
+      <div class="al al-i">${m.home} vs ${m.away} · ${m.date} · Ikke spillet endnu</div>
+      <div class="br">
+        <a href="https://tour.golfbox.dk/Interclub/scores.aspx?match=${nr}&dgu=1" target="_blank" class="btn btn-g">Åbn på GolfBox ↗</a>
+        <button class="btn btn-gh" onclick="syncMatch('${nr}')"><span class="sp"></span>Hent live</button>
+        ${m.sol?`<button class="btn btn-o" onclick="go('opstilling',document.querySelectorAll('.ni')[3])">Planlæg opstilling →</button>`:''}
+      </div></div>`;
+    return;
+  }
+  const data=CACHE[nr]||MATCH_DETAIL[nr];
+  if(!data){
+    el.innerHTML=`<div class="card mt"><div class="ch">Kamp ${nr}</div>
+      <div class="al al-w">Detaljerede resultater ikke tilgængelige.</div>
+      <div class="br"><a href="https://tour.golfbox.dk/Interclub/scores.aspx?match=${nr}&dgu=1" target="_blank" class="btn btn-gh">Åbn på GolfBox ↗</a>
+      <button class="btn btn-g" onclick="syncMatch('${nr}')"><span class="sp"></span>Hent nu</button></div></div>`;
+    return;
+  }
+  const isSolAway=m.away==='Søllerød';
+  const{us,them}=solScore(m);
+  const out=outcome(m);
+  let h=`<div class="card mt">
+    <div class="ch">Kamp ${nr} <em>${data.date||m.date}${data.venue?' · '+data.venue:''}</em></div>
+    <div class="score-bar">
+      <div style="font-size:.88rem;font-weight:500">${data.home}</div>
+      <div>
+        <div class="score-num"><span style="color:${isSolAway?'var(--red)':'var(--green)'}">${data.totalHome}</span><span style="font-size:1rem;color:var(--t3);margin:0 .5rem">–</span><span style="color:${isSolAway?'var(--green)':'var(--red)'}">${data.totalAway}</span></div>
+        <div class="score-sub">af ${data.maxPts} mulige · Søllerød ${out==='win'?'vandt':'tabte'}</div>
+      </div>
+      <div style="font-size:.88rem;font-weight:500;text-align:right">${data.away}</div>
+    </div>`;
+  (data.matches||[]).forEach(mx=>{
+    const isFour=mx.format==='foursome';
+    const leftSol=data.home==='Søllerød',rightSol=data.away==='Søllerød';
+    const solWon=mx.winner===(isSolAway?'away':'home');
+    const oppWon=mx.winner===(isSolAway?'home':'away');
+    const isHalved=mx.winner==='halved';
+    const ptMax=PT[isFour?'foursome':'single'].WIN;
+    const solPts=solWon?ptMax:isHalved?ptMax/2:0;
+    const lCls=(mx.winner==='home')?(leftSol?'arr-sol':'arr-opp'):'arr-idle';
+    const rCls=(mx.winner==='away')?(rightSol?'arr-sol':'arr-opp'):'arr-idle';
+    const boxCls=solWon?'win':oppWon?'loss':isHalved?'half':'';
+    const ptsCls=solWon?'win':oppWon?'loss':'half';
+    const displayPts=isFour?`+${fmtP(solPts)}pt (${fmtP(solPts/2)}pt ea)`:(`+${fmtP(solPts)}pt`);
+    const ln=isFour?`<div class="mpn">${mx.homePlayer}</div><div class="mpn" style="opacity:.75">${mx.homePlayer2||''}</div>`:`<div class="mpn" style="${leftSol?'color:var(--green)':''}">${mx.homePlayer}</div>`;
+    const lh=isFour?`<div class="mhcp">HCP ${mx.homeHcp} / ${mx.homeHcp2||'?'}</div>`:`<div class="mhcp">HCP ${mx.homeHcp}</div>`;
+    const rn=isFour?`<div class="mpn" style="color:var(--green)">${mx.awayPlayer}</div><div class="mpn" style="color:var(--green);opacity:.85">${mx.awayPlayer2||''}</div>`:`<div class="mpn" style="${rightSol?'color:var(--green)':''}">${mx.awayPlayer}</div>`;
+    const rh=isFour?`<div class="mhcp">HCP ${mx.awayHcp} / ${mx.awayHcp2||'?'}</div>`:`<div class="mhcp">HCP ${mx.awayHcp}</div>`;
+    h+=`<div class="mblock ${isFour?'fs-block':'sg-block'}">
+      <div class="mfmt">
+        ${isFour?`<span style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);font-weight:600">⛳ Foursome</span><span style="font-size:.68rem;color:var(--gold);opacity:.65">3 pt for sejr</span>`
+                :`<span style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--blue);font-weight:600">🏌️ Singles</span><span style="font-size:.68rem;color:var(--blue);opacity:.65">2 pt for sejr</span>`}
+      </div>
+      <div class="mbody">
+        <div class="mside">${ln}${lh}</div>
+        <div class="mctr"><div class="arow">
+          <div class="arr arr-l ${lCls}">◀</div>
+          <div><div class="sbox ${boxCls}">${isHalved?'Delt':mx.scoreStr}</div><div class="ptlbl ${ptsCls}">Søl: ${displayPts}</div></div>
+          <div class="arr arr-r ${rCls}">▶</div>
+        </div></div>
+        <div class="mside r">${rn}${rh}</div>
+      </div>
+      <div class="mnote">${mx.note||''}</div>
+    </div>`;
+  });
+  if(data.fetchedAt){const age=Math.round((Date.now()-new Date(data.fetchedAt).getTime())/60000);h+=`<div style="font-size:.68rem;color:var(--t3);margin-top:.5rem;text-align:right">Hentet ${age<60?age+' min':Math.round(age/60)+' timer'} siden</div>`;}
+  h+=`<div class="br"><a href="https://tour.golfbox.dk/Interclub/scores.aspx?match=${nr}&dgu=1" target="_blank" class="btn btn-gh">Åbn på GolfBox ↗</a><button class="btn btn-g" onclick="syncMatch('${nr}')"><span class="sp"></span>Hent opdatering</button></div></div>`;
+  el.innerHTML=h;
+}
+
+// ── Spillere ─────────────────────────────────────────────────
+function renderHCPEdit(){
+  const el = document.getElementById('hcp-edit-rows');
+  if(!el) return;
+  el.innerHTML = SOL_TRUPPEN.map(n=>{
+    const current = SOL_HCP[n];
+    const isChanged = SOL_HCP_SAVED[n] !== undefined;
+    return `<div style="display:flex;align-items:center;gap:.75rem;padding:.45rem 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <span style="flex:1;font-weight:500;font-size:.85rem">${n}${n===SOL_CAPTAIN?' <span class="b bi" style="font-size:.6rem">K</span>':''}</span>
+      <input type="number" step="0.1" min="0" max="54" value="${current}"
+        id="hcp-input-${n.replace(/ /g,'_')}"
+        style="width:80px;text-align:center;background:var(--bg4);border:1px solid ${isChanged?'var(--gold)':'var(--brd2)'};border-radius:7px;color:var(--text);font-size:.83rem;padding:.4rem .5rem">
+      <button onclick="saveHCP('${n.replace(/'/g,"\\'")}','${n.replace(/ /g,'_')}')"
+        class="btn btn-g" style="padding:.35rem .75rem;font-size:.75rem">Gem</button>
+      ${isChanged ? `<span style="font-size:.68rem;color:var(--gold)">↑ opdateret</span>` : `<span style="font-size:.68rem;color:var(--t3)">baseline</span>`}
+    </div>`;
+  }).join('');
+}
+
+function saveHCP(name, inputId){
+  const val = parseFloat(document.getElementById('hcp-input-'+inputId)?.value);
+  if(isNaN(val)||val<0||val>54){ alert('Ugyldigt handicap'); return; }
+  updateHCP(name, val);
+  renderPlayers();
+  renderAvail(effectiveSched());
+  renderHCPEdit();
+  // Re-render analyse if it's open
+  const analysePage = document.getElementById('tab-analyse');
+  if(analysePage?.classList.contains('active')) renderAnalyse();
+}
+
+function renderPlayers(){
+  const sub=document.getElementById('p-sub');
+  if(sub){const tot=SOL_TRUPPEN.reduce((a,n)=>a+pStats(n).played,0);sub.textContent=`5 spillere · ${tot} individuelle kampe spillet`;}
+  const ranked=SOL_TRUPPEN.map(n=>({name:n,hcp:SOL_HCP[n],captain:n===SOL_CAPTAIN,...pStats(n)})).sort((a,b)=>b.pts-a.pts||(b.ptPct||0)-(a.ptPct||0));
+  document.getElementById('p-tbl').innerHTML=`<table class="tbl">
+    <thead><tr><th>#</th><th>Spiller</th><th>HCP</th><th>Kampe</th><th>Pt / Maks</th><th>Pt%</th><th>Singles</th><th>Foursome</th></tr></thead>
+    <tbody>`+ranked.map((p,i)=>{
+      const pct=p.ptPct,bc=pct===null?'#444':pct>=60?'#4ade80':pct>=40?'#fbbf24':'#f87171';
+      const tag=pct===null?'<span class="b bp">–</span>':pct>=60?'<span class="b bw">🔥 Top</span>':pct>=40?'<span class="b bh">Solid</span>':'<span class="b bl">Needs form</span>';
+      const sngPts=p.singles.reduce((a,r)=>a+(r.pts||0),0);
+      const fsPts=p.foursome.reduce((a,r)=>a+(r.pts||0),0);
+      return `<tr>
+        <td><span class="rn ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${i+1}</span></td>
+        <td style="font-weight:500">${p.name}${p.captain?' <span class="b bi" style="font-size:.6rem">K</span>':''}</td>
+        <td><span class="ht">HCP ${p.hcp}</span></td>
+        <td>${p.played}</td>
+        <td><strong style="font-family:'Syne',sans-serif;color:var(--gold)">${fmtP(p.pts)}</strong> <span style="color:var(--t3);font-size:.75rem">/ ${fmtP(p.maxPts)}</span></td>
+        <td><div style="display:flex;align-items:center;gap:.4rem">${tag}<div class="pb"><div class="pf" style="width:${pct||0}%;background:${bc}"></div></div></div></td>
+        <td>${p.singles.length?`${p.singles.length}k · ${fmtP(sngPts)}pt`:'–'}</td>
+        <td>${p.foursome.length?`${p.foursome.length}k · ${fmtP(fsPts)}pt`:'–'}</td>
+      </tr>`;
+    }).join('')+`</tbody></table>
+    <details style="margin-top:.8rem;cursor:pointer">
+      <summary style="font-size:.75rem;color:var(--t3);padding:.35rem 0">Detaljeret kamphistorik ▸</summary>
+      <div style="margin-top:.6rem">`+
+    ranked.map(p=>{
+      if(!p.results.length)return '';
+      return `<div style="margin-bottom:.85rem"><div style="font-weight:500;font-size:.84rem;margin-bottom:.25rem;display:flex;align-items:center;gap:.5rem">${p.name}<span class="ht">HCP ${p.hcp}</span></div>`+
+      p.results.map(r=>`<div style="display:flex;align-items:center;gap:.5rem;padding:.3rem 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.79rem">
+          <span class="b ${r.result==='WIN'?'bw':r.result==='LOSS'?'bl':'bh'}" style="min-width:44px;justify-content:center">${r.result}</span>
+          <strong style="font-family:'Syne',sans-serif;color:var(--gold);min-width:30px">${fmtP(r.pts)}</strong>
+          <span style="color:var(--t3);font-size:.65rem">af ${fmtP(MAX_PTS[r.format])}</span>
+          <span class="${r.format==='foursome'?'b bh':'b bi'}" style="font-size:.62rem">${r.format==='foursome'?'Foursome':'Singles'}</span>
+          <span style="flex:1">vs ${r.oppPlayer}</span>
+          <span style="color:var(--t2)">${r.scoreStr}</span>
+          <span style="color:var(--t3);font-size:.65rem">k.${r.nr}</span>
+        </div>`).join('')+`</div>`;
+    }).join('')+`</div></details>`;
+  renderHCPEdit();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  OPSTILLING
+// ═══════════════════════════════════════════════════════════════
+const IDEAL = (6*4)/5; // 4.8 appearances per player over 6 matches
+
+function renderAvail(sched){
+  const el=document.getElementById('avail-btns');
+  if(!el)return;
+  el.innerHTML=SOL_TRUPPEN.map(n=>{
+    const on=PREFS.available.includes(n);
+    const load=playerLoad(n);
+    return `<button onclick="toggleAvail('${n.replace(/'/g,"\\'")}' )"
+      style="padding:.32rem .75rem;border-radius:20px;border:1.5px solid ${on?'var(--green)':'var(--brd2)'};background:${on?'var(--gd2)':'var(--bg4)'};color:${on?'var(--green)':'var(--t3)'};cursor:pointer;font-size:.77rem;font-weight:500;transition:all .15s">
+      ${n}<span style="font-size:.63rem;opacity:.65;margin-left:.3rem">HCP ${SOL_HCP[n]} · ${load.total}k</span>
+    </button>`;
+  }).join('');
+  const next=nextSol();
+  const ni=document.getElementById('next-info'),nl=document.getElementById('next-lbl');
+  if(next){
+    const opp=next.home==='Søllerød'?next.away:next.home;
+    const venue=next.home==='Søllerød'?'Hjemme':'Ude';
+    if(ni)ni.innerHTML=`Næste kamp: <strong>vs. ${opp}</strong> · ${next.date} · <strong>${venue}</strong> · Kamp ${next.nr}`;
+    if(nl)nl.textContent=`vs. ${opp} · ${next.date} · ${venue}`;
+    renderOppScout(opp);
+    renderLoadBalance();
+    const os=document.getElementById('opp-scout-lbl');
+    if(os)os.textContent=opp;
+    autoSuggest(next);
+  } else {
+    if(ni)ni.innerHTML='Alle 6 Søllerød-kampe er afsluttet.';
+    if(nl)nl.textContent='Sæson afsluttet';
+  }
+}
+
+function toggleAvail(name){
+  const i=PREFS.available.indexOf(name);
+  if(i>=0)PREFS.available.splice(i,1);else PREFS.available.push(name);
+  savePrefs();
+  renderAvail(effectiveSched());
+}
+
+// ── Load balance ──────────────────────────────────────────────
+function renderLoadBalance(){
+  const el=document.getElementById('load-balance');
+  if(!el)return;
+  const rows=SOL_TRUPPEN.map(n=>{
+    const load=playerLoad(n);
+    const needed=Math.round(IDEAL)-load.total;
+    const bc=needed>2?'var(--red)':needed>0?'var(--gold)':'var(--green)';
+    const pref=load.singles>load.foursome?'Foursome':load.foursome>load.singles?'Singles':'Frit';
+    return {n,load,needed,bc,pref};
+  }).sort((a,b)=>a.load.total-b.load.total);
+  el.innerHTML=`<table class="tbl">
+    <thead><tr><th>Spiller</th><th>Singles</th><th>Foursome</th><th>I alt</th><th>Mangler</th><th>Foreslå</th></tr></thead>
+    <tbody>`+rows.map(r=>`<tr>
+      <td style="font-weight:500;font-size:.82rem">${r.n.split(' ')[0]} ${r.n.split(' ').slice(-1)[0]}</td>
+      <td style="text-align:center">${r.load.singles}</td>
+      <td style="text-align:center">${r.load.foursome}</td>
+      <td style="text-align:center;font-family:'Syne',sans-serif;font-weight:700;color:var(--t2)">${r.load.total}</td>
+      <td style="text-align:center;font-family:'Syne',sans-serif;font-weight:700;color:${r.bc}">${r.needed>0?'+'+r.needed:'✓'}</td>
+      <td><span class="b ${r.pref==='Foursome'?'bh':r.pref==='Singles'?'bi':'bp'}" style="font-size:.65rem">${r.pref}</span></td>
+    </tr>`).join('')+`</tbody></table>
+    <div style="font-size:.7rem;color:var(--t3);margin-top:.5rem">Ideal: ~${IDEAL.toFixed(1)} kampe pr. spiller over 6 kampe</div>`;
+}
+
+// ── Opponent scout ────────────────────────────────────────────
+function renderOppScout(oppName){
+  const el=document.getElementById('opp-scout');
+  if(!el)return;
+  const opp=OPP[oppName];
+  if(!opp?.players.length){
+    el.innerHTML=`<div class="al al-w" style="font-size:.78rem">Ingen data for ${oppName} endnu.</div>`;
+    return;
+  }
+  const singles=opp.players.filter(p=>p.apps.some(a=>a.format==='single'));
+  const foursomePl=opp.players.filter(p=>p.apps.some(a=>a.format==='foursome'));
+  function threat(p){
+    const wins=p.apps.filter(a=>a.result==='WIN').length;
+    const total=p.apps.length;
+    if(p.hcp<8||wins/total>=0.75)return{cls:'bl',lbl:'⚠️ Farlig'};
+    if(wins/total>=0.5)return{cls:'bh',lbl:'Solid'};
+    return{cls:'bw',lbl:'Overkommelig'};
+  }
+  let h=`<div style="background:var(--bg4);border-radius:var(--rs);padding:.6rem .85rem;margin-bottom:.7rem;font-size:.78rem;color:var(--t2);line-height:1.6">${opp.notes}</div>`;
+  if(singles.length){
+    h+=`<div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--blue);font-weight:600;margin-bottom:.35rem">🏌️ Singles</div>`;
+    singles.forEach(p=>{
+      const wins=p.apps.filter(a=>a.result==='WIN').length;
+      const losses=p.apps.filter(a=>a.result==='LOSS').length;
+      const th=threat(p);
+      const hist=p.apps.map(a=>`${a.result==='WIN'?'✓':a.result==='LOSS'?'✗':'½'} ${a.scoreStr} vs ${a.opp}`).join(' · ');
+      // Best Søllerød matchup by HCP proximity
+      const best=[...SOL_TRUPPEN].sort((a,b)=>Math.abs(SOL_HCP[a]-p.hcp)-Math.abs(SOL_HCP[b]-p.hcp))[0];
+      h+=`<div style="padding:.45rem 0;border-bottom:1px solid rgba(255,255,255,.05)">
+        <div style="display:flex;align-items:center;gap:.5rem;font-size:.82rem">
+          <span class="ht" style="flex-shrink:0">HCP ${p.hcp}</span>
+          <span style="font-weight:500;flex:1">${p.name}</span>
+          <span class="b ${th.cls}" style="font-size:.63rem">${th.lbl}</span>
+          <span style="font-size:.68rem;color:${wins>losses?'var(--red)':'var(--green)'}">${wins}V-${losses}T</span>
+        </div>
+        <div style="font-size:.68rem;color:var(--t3);margin-top:.15rem">${hist}</div>
+        <div style="font-size:.68rem;color:var(--green);margin-top:.1rem">→ Matchup: <strong>${best.split(' ')[0]}</strong> (HCP ${SOL_HCP[best]}) · ${(()=>{const diff=SOL_HCP[best]-p.hcp;const s=Math.round(Math.abs(diff)/2);return diff>1?`+${s} slag (modtager)`:diff<-1?`−${s} slag (giver)`:'Ens niveau';})()}</div>
+      </div>`;
+    });
+  }
+  // Deduplicate foursome pairs
+  const seen=new Set();
+  const fsPairs=foursomePl.filter(p=>{
+    const partner=p.apps.find(a=>a.partner)?.partner||'';
+    const key=[p.name,partner].sort().join('|');
+    if(seen.has(key))return false;seen.add(key);return true;
+  });
+  if(fsPairs.length){
+    h+=`<div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);font-weight:600;margin:.65rem 0 .35rem">⛳ Foursome</div>`;
+    fsPairs.forEach(p=>{
+      const partner=p.apps.find(a=>a.partner)?.partner||'';
+      const partnerPl=foursomePl.find(q=>q.name===partner);
+      const wins=p.apps.filter(a=>a.result==='WIN').length;
+      const halves=p.apps.filter(a=>a.result==='HALF').length;
+      const th=wins>0?{cls:'bl',lbl:'⚠️ Farlig'}:halves>0?{cls:'bh',lbl:'Halvt'}:{cls:'bw',lbl:'Svag'};
+      const hist=p.apps.map(a=>`${a.result==='WIN'?'✓':a.result==='LOSS'?'✗':'½'} ${a.scoreStr} vs ${a.opp}`).join(' · ');
+      h+=`<div style="padding:.45rem 0;border-bottom:1px solid rgba(255,255,255,.05)">
+        <div style="display:flex;align-items:center;gap:.5rem;font-size:.82rem">
+          <span class="ht" style="flex-shrink:0">HCP ${p.hcp}${partnerPl?'/'+partnerPl.hcp:''}</span>
+          <span style="font-weight:500;flex:1">${p.name}${partner?' <span style="color:var(--t3)">+ '+partner.split(' ').slice(-1)[0]+'</span>':''}</span>
+          <span class="b ${th.cls}" style="font-size:.63rem">${th.lbl}</span>
+        </div>
+        <div style="font-size:.68rem;color:var(--t3);margin-top:.15rem">${hist}</div>
+      </div>`;
+    });
+  }
+  el.innerHTML=h;
+}
+
+// ── SHARED LINEUP BUILDER — used by both Opstilling and Analyse ──
+// Returns {fs:[name,name], sg:[name,name], oppSgPl, oppFsPl, oppData, notes}
+// pool: array of player names to pick from (defaults to all 5)
+// projLoad: optional {name: currentProjectedTotal} — used by Analyse to enforce min-3/ideal-4
+function buildLineup(nextMatch, pool, projLoad){
+  if(!nextMatch) return null;
+  pool = pool || [...SOL_TRUPPEN];
+  if(pool.length < 4) return null;
+
+  // If no projLoad given, build from actual played counts
+  if(!projLoad){
+    projLoad = {};
+    SOL_TRUPPEN.forEach(n => projLoad[n] = playerLoad(n).total);
+  }
+
+  const IDEAL = (6*4)/5; // 4.8 appearances over the season
+
+  const opp     = nextMatch.home==='Søllerød' ? nextMatch.away : nextMatch.home;
+  const oppData = OPP[opp];
+  const oppSgPl = (oppData?.players.filter(p=>p.apps.some(a=>a.format==='single'))||[])
+                    .sort((a,b)=>a.hcp-b.hcp); // asc: [0]=lowest HCP = strongest
+  const oppFsPl = oppData?.players.filter(p=>p.apps.some(a=>a.format==='foursome'))||[];
+  const oppFsRecord = oppFsPl[0]?.apps.map(a=>a.result==='WIN'?'V':a.result==='LOSS'?'T':'D').join('')||'?';
+
+  // Score each player for this match.
+  // strength:  100 - HCP (lower HCP = better golfer = higher score)
+  // urgBonus:  below ideal appearances → strong bonus
+  // Both used for deciding who plays at all (the 5th sits out)
+  const scored = pool.map(n=>{
+    const load     = playerLoad(n);
+    const strength = 100 - SOL_HCP[n];
+    const behind   = Math.max(0, Math.ceil(IDEAL) - (projLoad[n]||0));
+    const urgBonus = behind * 25;
+    const fsWins   = pStats(n).results.filter(r=>r.format==='foursome'&&r.result==='WIN').length;
+    const wantsFs  = Math.max(0, load.singles  - load.foursome); // has more singles → wants foursome
+    const wantsSg  = Math.max(0, load.foursome - load.singles);  // has more foursome → wants singles
+    // noExp: hasn't tried this format at all → strongest rotation signal
+    const noFsExp  = load.foursome === 0 && load.total > 0 ? 1 : 0;
+    const noSgExp  = load.singles  === 0 && load.total > 0 ? 1 : 0;
+    return { name:n, hcp:SOL_HCP[n], strength, urgBonus, fsWins,
+             wantsFs, wantsSg, noFsExp, noSgExp,
+             total: strength + urgBonus };
+  }).sort((a,b) => b.total - a.total);
+
+  // Pick who plays (top 4 by total score — urgency + strength)
+  const names4  = scored.slice(0,4).map(p=>p.name);
+  const scored4 = scored.filter(p=>names4.includes(p.name));
+
+  // NOW: decide foursome vs singles split among the 4 chosen.
+  // Try all 3 possible 2+2 splits. Score each split:
+  //   foursome score = -(combined HCP) + proven wins * 10 + rotation bonus
+  //   singles  score = implicitly the rest
+  // Rotation bonus: large if a player has NEVER done that format,
+  //                 medium if they have a format imbalance
+
+  const FORMAT_ROTATION_BONUS = 20; // never played this format
+  const FORMAT_BALANCE_BONUS  = 10; // has played more of the other format
+
+  let bestFs = [names4[0], names4[1]], bestSplit = -9999;
+
+  for(let i=0;i<names4.length;i++) for(let j=i+1;j<names4.length;j++){
+    const fsNames = [names4[i], names4[j]];
+    const sgNames = names4.filter(n=>!fsNames.includes(n));
+
+    const sp = n => scored4.find(p=>p.name===n);
+
+    // Foursome score
+    const fsHcp   = -(SOL_HCP[fsNames[0]] + SOL_HCP[fsNames[1]]); // lower = better
+    const fsWinSc = (pStats(fsNames[0]).results.filter(r=>r.format==='foursome'&&r.result==='WIN').length
+                  +  pStats(fsNames[1]).results.filter(r=>r.format==='foursome'&&r.result==='WIN').length) * 10;
+    const fsRotSc = fsNames.reduce((a,n)=>{
+      const p=sp(n);
+      return a + (p?.noFsExp ? FORMAT_ROTATION_BONUS : p?.wantsFs ? FORMAT_BALANCE_BONUS : 0);
+    }, 0);
+
+    // Singles score — reward players who need singles experience
+    const sgRotSc = sgNames.reduce((a,n)=>{
+      const p=sp(n);
+      return a + (p?.noSgExp ? FORMAT_ROTATION_BONUS : p?.wantsSg ? FORMAT_BALANCE_BONUS : 0);
+    }, 0);
+
+    // Combined split score
+    const sc = fsHcp + fsWinSc + fsRotSc + sgRotSc;
+    if(sc > bestSplit){ bestSplit=sc; bestFs=fsNames; }
+  }
+
+
+  // Singles = remaining 2, sorted HCP desc (DGU: pos1=highest HCP of these 2)
+  const sg = names4.filter(n=>!bestFs.includes(n)).sort((a,b)=>SOL_HCP[b]-SOL_HCP[a]);
+
+  // ── Handicap equalisation helper ─────────────────────────────
+  // In match play with handicap, the weaker player (higher HCP) receives
+  // extra strokes ≈ Math.round(|hcpA - hcpB| / 2) distributed across 9 holes.
+  // This levels the playing field — so we assess "effective advantage" not raw HCP.
+  // For foursome: team HCP = (p1HCP + p2HCP) / 2
+  // Effective advantage: positive = we get strokes (underdog), negative = we give strokes (favourite)
+  function handicapStrokes(ourHcp, theirHcp){
+    return Math.round(Math.abs(ourHcp - theirHcp) / 2);
+  }
+  function matchupLabel(ourHcp, theirHcp){
+    const diff = ourHcp - theirHcp;            // positive = we have higher HCP = underdog
+    const strokes = handicapStrokes(ourHcp, theirHcp);
+    if(Math.abs(diff) < 2) return {txt:'Ens niveau', cls:'bh'};
+    if(diff > 0) return {txt:`+${strokes} slag (modtager)`, cls:'bh'};  // we receive strokes
+    return {txt:`−${strokes} slag (giver)`, cls:'bw'};                   // we give strokes = favourite
+  }
+
+  // Build notes
+  const ourFsHcp    = (SOL_HCP[bestFs[0]] + SOL_HCP[bestFs[1]]) / 2;
+  const oppFsHcpAvg = oppFsPl.length>=2 ? (oppFsPl[0].hcp + oppFsPl[1].hcp) / 2 : null;
+  const fsMatchup   = oppFsHcpAvg !== null ? matchupLabel(ourFsHcp, oppFsHcpAvg) : null;
+  const fsStrokes   = oppFsHcpAvg !== null ? handicapStrokes(ourFsHcp, oppFsHcpAvg) : null;
+  const fsWins      = pStats(bestFs[0]).results.filter(r=>r.format==='foursome'&&r.result==='WIN').length
+                    + pStats(bestFs[1]).results.filter(r=>r.format==='foursome'&&r.result==='WIN').length;
+  const fl0=playerLoad(bestFs[0]), fl1=playerLoad(bestFs[1]);
+
+  const oppFsHcpStr = oppFsPl.length>=2 ? `${oppFsPl[0].hcp}/${oppFsPl[1].hcp}` : '?';
+  const fsNote = [
+    `Hold HCP ${ourFsHcp.toFixed(1)} mod ${opp} ${oppFsHcpStr!=='?'?`HCP avg ${oppFsHcpAvg.toFixed(1)}`:'HCP ?'}`,
+    fsMatchup ? fsMatchup.txt : null,
+    fsWins>0 ? `${fsWins} foursome-sejr${fsWins>1?'e':''}` : null,
+    `${bestFs[0].split(' ')[0]}: ${fl0.foursome}fs/${fl0.singles}sg`,
+    `${bestFs[1].split(' ')[0]}: ${fl1.foursome}fs/${fl1.singles}sg`,
+  ].filter(Boolean).join(' · ');
+
+  const singles = sg.map((n,i)=>{
+    const load  = playerLoad(n);
+    const myHcp = SOL_HCP[n];
+    // pos1 (highest HCP) faces opp pos1 (their highest HCP = last in asc list)
+    // pos2 (lowest HCP)  faces opp pos2 (their lowest HCP  = first in asc list)
+    const oppP  = oppSgPl.length>=2 ? oppSgPl[oppSgPl.length-1-i] : oppSgPl[0];
+    const sgRec = pStats(n).singles;
+    const rec   = sgRec.length ? `${sgRec.filter(r=>r.result==='WIN').length}V/${sgRec.filter(r=>r.result==='LOSS').length}T` : 'ingen data';
+
+    let matchupNote = '';
+    if(oppP){
+      const mu = matchupLabel(myHcp, oppP.hcp);
+      const strokes = handicapStrokes(myHcp, oppP.hcp);
+      matchupNote = `mod ${oppP.name.split(' ').slice(-1)[0]} HCP${oppP.hcp} · ${mu.txt}`;
+    }
+    return {
+      player:n, pos:i+1,
+      note:[`HCP ${myHcp}`, matchupNote, `singles: ${rec}`, `${load.singles}sg/${load.foursome}fs`].filter(Boolean).join(' · ')
+    };
+  });
+
+  const fsWeak = oppFsRecord!=='?' && !oppFsRecord.includes('V');
+
+  // Format rotation notes — which players are getting which format for the first time or to balance
+  const fmtNotes = names4.map(n=>{
+    const l = playerLoad(n);
+    const inFs = bestFs.includes(n);
+    if(inFs && l.foursome===0) return `${n.split(' ')[0]} spiller foursome for første gang`;
+    if(!inFs && l.singles===0) return `${n.split(' ')[0]} spiller singles for første gang`;
+    if(inFs && l.singles > l.foursome+1) return `${n.split(' ')[0]} skifter til foursome (balance)`;
+    if(!inFs && l.foursome > l.singles+1) return `${n.split(' ')[0]} skifter til singles (balance)`;
+    return null;
+  }).filter(Boolean);
+
+  const captain = [
+    fsWeak ? `${opp}s foursome har aldrig vundet (${oppFsRecord}) — vind foursomen og én single = sejr.` : '',
+    `DGU-regel: pos 1 (${sg[0].split(' ')[0]}, HCP ${SOL_HCP[sg[0]]}) > pos 2 (${sg[1].split(' ')[0]}, HCP ${SOL_HCP[sg[1]]}).`,
+    fmtNotes.length ? `Formatrotation: ${fmtNotes.join(', ')}.` : '',
+  ].filter(Boolean).join(' ');
+
+  return {
+    fs: bestFs, sg, singles,
+    foursome: [{p1:bestFs[0], p2:bestFs[1], note:fsNote}],
+    captain, autoGenerated:true,
+    opp, oppSgPl, oppFsPl, oppFsRecord, oppData,
+  };
+}
+
+// ── Opstilling tab: auto-suggest using buildLineup ────────────
+function autoSuggest(nextMatch){
+  const marked = SOL_TRUPPEN.filter(n=>PREFS.available.includes(n));
+  const pool   = marked.length>=4 ? marked : [...SOL_TRUPPEN];
+  const result = buildLineup(nextMatch, pool);
+  if(result) renderLineup(result, nextMatch);
+}
+
+// ── Lineup render ─────────────────────────────────────────────
+function renderLineup(data,nextMatch){
+  const next=nextMatch||nextSol();
+  const opp=next?(next.home==='Søllerød'?next.away:next.home):'næste modstander';
+  const venue=next?(next.home==='Søllerød'?'Hjemme':'Ude'):'';
+  let h=`<div class="card"><div class="ch">Anbefalet opstilling <em>vs. ${opp}${venue?' · '+venue:''}</em>${data.autoGenerated?'<span class="b bp" style="font-size:.62rem;margin-left:.4rem">Auto</span>':''}</div>
+  <div class="al al-g" style="font-size:.75rem">⭐ Vind foursome (3pt) + én single (2pt) = 5pt = holdkampsejr</div>`;
+
+  if(data.foursome?.length){
+    h+=`<div class="secl" style="margin-top:.5rem">⛳ Foursome — 3 pt for sejr</div>`;
+    data.foursome.forEach(p=>{
+      const l1=playerLoad(p.p1),l2=playerLoad(p.p2);
+      h+=`<div class="ls gld"><span class="lsn">FS</span>
+        <div style="flex:1"><div class="lsname">${p.p1} & ${p.p2}</div><div class="lsmeta">${p.note}</div>
+          <div style="display:flex;gap:.3rem;margin-top:.2rem">
+            <span class="b bp" style="font-size:.62rem">${p.p1.split(' ')[0]}: ${l1.foursome}fs/${l1.singles}sg</span>
+            <span class="b bp" style="font-size:.62rem">${p.p2.split(' ')[0]}: ${l2.foursome}fs/${l2.singles}sg</span>
+          </div>
+        </div><span class="b bh">+3 pt</span></div>`;
+    });
+  }
+
+  if(data.singles?.length){
+    h+=`<div class="secl">🏌️ Singles — 2 pt for sejr <span style="font-weight:400;color:var(--t3);font-size:.62rem">(DGU: af disse 2 har pos 1 højest HCP)</span></div>`;
+    data.singles.forEach((p,i)=>{
+      const load=playerLoad(p.player);
+      const hcp=SOL_HCP[p.player];
+      h+=`<div class="ls ${i===0?'':'grn'}"><span class="lsn">${p.pos}</span>
+        <div style="flex:1"><div class="lsname">${p.player}</div><div class="lsmeta">${p.note}</div>
+          <div style="margin-top:.2rem"><span class="b bp" style="font-size:.62rem">${load.singles}sg/${load.foursome}fs spillet</span></div>
+        </div>
+        ${i===0?`<span class="b bl" style="font-size:.63rem">HCP ${hcp} ↑</span>`:`<span class="b bw" style="font-size:.63rem">HCP ${hcp} ↓</span>`}
+      </div>`;
+    });
+  }
+
+  if(data.warnings?.length){
+    h+=`<div class="al al-w" style="font-size:.76rem;margin-top:.65rem">⚠️ ${data.warnings.join(' · ')}</div>`;
+  }
+
+  if(data.captain){
+    h+=`<div style="margin-top:.75rem;padding:.8rem 1rem;background:var(--bg4);border-radius:var(--rs);border-left:3px solid var(--gold)">
+      <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);font-weight:600;margin-bottom:.3rem">Kaptajn-note</div>
+      <div style="font-size:.83rem;color:var(--t2);line-height:1.7">${data.captain}</div>
+    </div>`;
+  }
+
+  // GolfBox quick-entry guide
+  if(next){
+    const gfUrl=`https://tour.golfbox.dk/Interclub/scores.aspx?match=${next.nr}&dgu=1`;
+    const entries=[];
+    if(data.foursome?.[0]){entries.push({lbl:'Foursome spiller 1',val:data.foursome[0].p1,hcp:SOL_HCP[data.foursome[0].p1]});entries.push({lbl:'Foursome spiller 2',val:data.foursome[0].p2,hcp:SOL_HCP[data.foursome[0].p2]});}
+    if(data.singles?.[0])entries.push({lbl:'Singles pos 1 (højest HCP)',val:data.singles[0].player,hcp:SOL_HCP[data.singles[0].player]});
+    if(data.singles?.[1])entries.push({lbl:'Singles pos 2 (lavest HCP)', val:data.singles[1].player,hcp:SOL_HCP[data.singles[1].player]});
+    h+=`<div style="margin-top:.9rem;background:var(--bg3);border:1px solid var(--brd2);border-radius:var(--rs);overflow:hidden">
+      <div style="padding:.5rem 1rem;background:rgba(96,165,250,.1);border-bottom:1px solid var(--brd2);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--blue);font-weight:600">📋 Indtast på GolfBox</div>
+        <a href="${gfUrl}" target="_blank" class="btn btn-gh" style="padding:.25rem .65rem;font-size:.72rem">Åbn ↗</a>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:.8rem;padding:.5rem">
+        ${entries.map(e=>`<tr style="border-bottom:1px solid rgba(255,255,255,.04)">
+          <td style="padding:.4rem .75rem;color:var(--t3);font-size:.7rem">${e.lbl}</td>
+          <td style="padding:.4rem .5rem;font-weight:600">${e.val} <span class="ht" style="margin-left:.3rem">HCP ${e.hcp}</span></td>
+          <td style="padding:.4rem .75rem;text-align:right">
+            <button onclick="navigator.clipboard.writeText('${e.val}').then(()=>{this.textContent='✓ Kopieret';setTimeout(()=>this.textContent='Kopiér',1500)})"
+              style="background:var(--bg4);border:1px solid var(--brd2);color:var(--t2);border-radius:5px;padding:.15rem .5rem;font-size:.68rem;cursor:pointer;font-family:inherit">Kopiér</button>
+          </td>
+        </tr>`).join('')}
+      </table>
+    </div>`;
+  }
+
+  document.getElementById('lineup-out').innerHTML=h+'</div>';
+}
+
+// ── Lineup generators ─────────────────────────────────────────
+function genLineupAlgo(){
+  const avail=SOL_TRUPPEN.filter(n=>PREFS.available.includes(n));
+  if(avail.length<4){alert('Vælg mindst 4 spillere');return;}
+  const next=nextSol();
+  autoSuggest(next||{home:'Søllerød',away:'?',nr:'?'});
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+//  ANALYSE
+// ═══════════════════════════════════════════════════════════════
+function renderAnalyse(){
+  const el = document.getElementById('analyse-content');
+  if(!el) return;
+
+  const sched = effectiveSched();
+  const played = sched.filter(m=>m.sol&&m.done);
+  const upcoming = sched.filter(m=>m.sol&&!m.done);
+
+  // ── Section builder helper ─────────────────────────────────
+  function section(title, sub, content){
+    return `<div class="card"><div class="ch">${title}${sub?` <em>${sub}</em>`:''}</div>${content}</div>`;
+  }
+  function row(label, value, color='var(--t2)'){
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.83rem">
+      <span style="color:var(--t3)">${label}</span>
+      <span style="font-weight:600;color:${color}">${value}</span>
+    </div>`;
+  }
+  function insight(icon, text, color='var(--t2)'){
+    return `<div style="display:flex;gap:.6rem;padding:.45rem 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.82rem;line-height:1.5">
+      <span style="flex-shrink:0">${icon}</span><span style="color:${color}">${text}</span>
+    </div>`;
+  }
+
+  let html = '';
+
+  // ── 1. SÆSONSTATUS ────────────────────────────────────────────
+  const totalSolPts  = played.reduce((a,m)=>a+solScore(m).us, 0);
+  const totalOppPts  = played.reduce((a,m)=>a+solScore(m).them, 0);
+  const ptPct = totalSolPts/(totalSolPts+totalOppPts)*100;
+  const maxPossible  = upcoming.length * 2; // matchpoints still available
+  const insights = [];
+
+  if(played.length===0){
+    insights.push(insight('📅','Ingen kampe spillet endnu.'));
+  } else {
+    if(ptPct < 40) insights.push(insight('📉',`Søllerød har vundet ${ptPct.toFixed(0)}% af kampointene i de ${played.length} spillede kampe — under forventet.`,'var(--red)'));
+    else if(ptPct >= 55) insights.push(insight('📈',`Stærk kamppoint-rate: ${ptPct.toFixed(0)}% — holdet konkurrerer godt punkt-for-punkt.`,'var(--green)'));
+
+    // Foursome record
+    const fsResults = SOL_TRUPPEN.flatMap(n=>getResults(n).filter(r=>r.format==='foursome'));
+    const fsUniq = [...new Map(fsResults.map(r=>[r.nr,r])).values()]; // one per match
+    const fsWins = fsUniq.filter(r=>r.result==='WIN').length;
+    const fsTotal = fsUniq.length;
+    if(fsTotal>0){
+      const fsPct = Math.round(fsWins/fsTotal*100);
+      if(fsPct>=60) insights.push(insight('⛳',`Foursome er styrken: ${fsWins}/${fsTotal} sejre (${fsPct}%) — fortsæt med Ditlev/Adrian som fast par.`,'var(--green)'));
+      else if(fsPct<40) insights.push(insight('⛳',`Foursome er et problemområde: ${fsWins}/${fsTotal} sejre — overvej nye par-kombinationer.`,'var(--red)'));
+    }
+
+    // Singles record
+    const sgResults = SOL_TRUPPEN.flatMap(n=>getResults(n).filter(r=>r.format==='single'));
+    const sgWins = sgResults.filter(r=>r.result==='WIN').length;
+    const sgTotal = sgResults.length;
+    if(sgTotal>0){
+      const sgPct = Math.round(sgWins/sgTotal*100);
+      if(sgPct<35) insights.push(insight('🏌️',`Singles er udfordringen: kun ${sgWins}/${sgTotal} sejre (${sgPct}%). Matchup-strategi er afgørende.`,'var(--red)'));
+      else insights.push(insight('🏌️',`Singles-record: ${sgWins}/${sgTotal} sejre (${sgPct}%).`,'var(--t2)'));
+    }
+
+    // HCP mismatch warning — check if Søllerød players have been mismatched
+    const hcpMismatches = SOL_TRUPPEN.flatMap(n=>
+      getResults(n).filter(r=>r.format==='single'&&typeof r.oppHcp==='number'&&r.oppHcp<SOL_HCP[n]-8&&r.result==='LOSS')
+    );
+    if(hcpMismatches.length>0)
+      insights.push(insight('⚠️',`${hcpMismatches.length} singles-tab mod modstandere med markant lavere HCP — tjek opstillingslogikken.`,'var(--gold)'));
+
+    if(maxPossible>0) insights.push(insight('🎯',`${upcoming.length} kampe tilbage = op til ${maxPossible} matchpoint mulige. ${maxPossible>=2?'Teoretisk mulighed for at rykke op i tabellen.':'Sæsonen er ved at slutte.'}`,'var(--blue)'));
+  }
+
+  html += section('Sæsonstatus','Baseret på spillede kampe',
+    row('Kampe spillet', `${played.length} / 6`) +
+    row('Kamppoint vundet', fmtP(totalSolPts), 'var(--gold)') +
+    row('Kamppoint tabt', fmtP(totalOppPts), 'var(--red)') +
+    row('Matchpoint', '0 af '+played.length*2+' mulige', 'var(--red)') +
+    row('Resterende matchpoint', String(maxPossible), 'var(--blue)') +
+    (insights.length ? `<div style="margin-top:.75rem">${insights.join('')}</div>` : '')
+  );
+
+  // ── 2. SPILLERANALYSE ─────────────────────────────────────────
+  const playerRows = SOL_TRUPPEN.map(n=>{
+    const s = pStats(n);
+    const load = playerLoad(n);
+    const sgWinRate = s.singles.length ? s.singles.filter(r=>r.result==='WIN').length/s.singles.length : null;
+    const fsWinRate = s.foursome.length ? s.foursome.filter(r=>r.result==='WIN').length/s.foursome.length : null;
+
+    // Strength assessment
+    const strengths=[], concerns=[];
+    if(fsWinRate!==null&&fsWinRate>=0.5) strengths.push('Stærk i foursome');
+    if(sgWinRate!==null&&sgWinRate>=0.5) strengths.push('Vinder singles');
+    if(s.ptPct!==null&&s.ptPct>=60) strengths.push('Top pt-rate');
+    if(fsWinRate!==null&&fsWinRate===0&&s.foursome.length>=1) concerns.push('0 foursome-sejre');
+    if(sgWinRate!==null&&sgWinRate===0&&s.singles.length>=1) concerns.push('0 singles-sejre');
+    if(load.singles===0&&load.total>0) concerns.push('Mangler singles-erfaring');
+    if(load.foursome===0&&load.total>0) concerns.push('Mangler foursome-erfaring');
+
+    // HCP matchup history
+    const avgOppHcp = s.results.filter(r=>typeof r.oppHcp==='number').reduce((a,r,_,arr)=>a+r.oppHcp/arr.length,0);
+
+    return {n, s, load, sgWinRate, fsWinRate, strengths, concerns, avgOppHcp};
+  }).sort((a,b)=>(b.s.ptPct||0)-(a.s.ptPct||0));
+
+  const playerAnalysis = playerRows.map((p,i)=>{
+    const pct=p.s.ptPct;
+    const bc=pct===null?'#555':pct>=60?'var(--green)':pct>=35?'var(--gold)':'var(--red)';
+    const bestFmt = p.fsWinRate!==null&&p.sgWinRate!==null
+      ? (p.fsWinRate>p.sgWinRate?'Foursome':'Singles')
+      : p.load.foursome>p.load.singles?'Foursome':p.load.singles>p.load.foursome?'Singles':'Begge';
+    const rec = p.s.results.length
+      ? `${p.s.wins}V / ${p.s.results.filter(r=>r.result==='HALF').length}D / ${p.s.results.filter(r=>r.result==='LOSS').length}T`
+      : 'Ingen kampe';
+    return `<div style="padding:.7rem 0;border-bottom:1px solid rgba(255,255,255,.05)">
+      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem">
+        <span class="rn ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${i+1}</span>
+        <span style="font-weight:500;font-size:.88rem;flex:1">${p.n}${p.n===SOL_CAPTAIN?' <span class="b bi" style="font-size:.6rem">K</span>':''}</span>
+        <span class="ht">HCP ${SOL_HCP[p.n]}</span>
+        <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;color:${bc}">${pct!==null?pct+'%':'–'}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.3rem">
+        <span class="b bp" style="font-size:.63rem">📊 ${rec}</span>
+        <span class="b bp" style="font-size:.63rem">⛳ ${p.load.foursome}fs / 🏌️ ${p.load.singles}sg</span>
+        <span class="b ${bestFmt==='Foursome'?'bh':'bi'}" style="font-size:.63rem">Bedst i ${bestFmt}</span>
+        ${p.strengths.map(s=>`<span class="b bw" style="font-size:.62rem">✓ ${s}</span>`).join('')}
+        ${p.concerns.map(c=>`<span class="b bl" style="font-size:.62rem">⚠ ${c}</span>`).join('')}
+      </div>
+      ${p.s.results.length ? `<div style="font-size:.72rem;color:var(--t3)">${
+        p.s.results.map(r=>`${r.format==='foursome'?'⛳':'🏌️'} vs ${r.oppPlayer.split('/')[0].split(' ').slice(-1)[0]}(HCP${r.oppHcp}): <span style="color:${r.result==='WIN'?'var(--green)':r.result==='LOSS'?'var(--red)':'var(--gold)'}">${r.result}</span> ${r.scoreStr}`).join(' · ')
+      }</div>` : '<div style="font-size:.72rem;color:var(--t4)">Ingen kampdata endnu</div>'}
+    </div>`;
+  }).join('');
+
+  html += section('Spilleranalyse','Rangeret efter pointrate', playerAnalysis);
+
+  // ── 3. KOMMENDE KAMPE — ANBEFALINGER (uses shared buildLineup) ──
+  if(upcoming.length){
+    // Build all upcoming lineups using the same buildLineup() function as Opstilling tab
+    // Track projected load to enforce min-3 appearances — feed into pool prioritisation
+    const projLoad = {};
+    SOL_TRUPPEN.forEach(n => projLoad[n] = playerLoad(n).total);
+
+    const lineups = upcoming.map(m=>{
+      // Pass projLoad to buildLineup so it picks players who need appearances
+      // Use all 5 as pool — projLoad urgency will force rotation
+      const result = buildLineup(m, [...SOL_TRUPPEN], projLoad);
+      if(result){
+        result.fs.forEach(n => projLoad[n]++);
+        result.sg.forEach(n => projLoad[n]++);
+      }
+      return {m, result};
+    });
+
+    const recs = lineups.map(({m, result})=>{
+      if(!result) return '';
+      const venue = m.home==='Søllerød'?'Hjemme':'Ude';
+      const {fs, sg, opp, oppSgPl, oppFsPl, oppData} = result;
+      const oppFsRec  = oppFsPl[0]?.apps.map(a=>a.result==='WIN'?'V':a.result==='LOSS'?'T':'D').join('')||'?';
+      const oppFsWeak = oppFsRec!=='?'&&!oppFsRec.includes('V');
+      const oppFsHcpStr = oppFsPl.length>=2?`${oppFsPl[0].hcp}/${oppFsPl[1].hcp}`:'?';
+      const ourFsHcp  = (SOL_HCP[fs[0]]+SOL_HCP[fs[1]]).toFixed(1);
+      const sitting   = SOL_TRUPPEN.filter(n=>!fs.includes(n)&&!sg.includes(n));
+
+      return `<div style="background:var(--bg3);border:1px solid var(--brd);border-radius:var(--rs);padding:.85rem 1rem;margin-bottom:.65rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.65rem">
+          <div><div style="font-weight:600;font-size:.9rem">vs. ${opp}</div>
+            <div style="font-size:.7rem;color:var(--t3)">${m.date} · ${venue} · Kamp ${m.nr}</div></div>
+          <div style="display:flex;gap:.3rem">
+            ${oppFsWeak?'<span class="b bw" style="font-size:.63rem">Svag FS ✓</span>':''}
+            <span class="b bp" style="font-size:.63rem">${opp} data</span>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.55rem">
+          <div style="background:var(--bg4);border-radius:var(--rs);padding:.6rem .8rem;border-left:3px solid var(--gold)">
+            <div style="font-size:.62rem;color:var(--gold);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-bottom:.35rem">⛳ Foursome</div>
+            ${fs.map(n=>`<div style="display:flex;justify-content:space-between;margin-bottom:.2rem">
+              <span style="font-weight:500;font-size:.82rem">${n.split(' ')[0]} ${n.split(' ').slice(-1)[0]}</span>
+              <span class="ht">HCP ${SOL_HCP[n]}</span></div>`).join('')}
+            <div style="font-size:.68rem;color:var(--t3);margin-top:.3rem">Samlet HCP ${ourFsHcp} mod ${opp} ${oppFsHcpStr} (${oppFsRec})</div>
+          </div>
+          <div style="background:var(--bg4);border-radius:var(--rs);padding:.6rem .8rem;border-left:3px solid var(--blue)">
+            <div style="font-size:.62rem;color:var(--blue);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-bottom:.35rem">🏌️ Singles <span style="font-weight:400;text-transform:none;letter-spacing:0">(pos1=højest HCP)</span></div>
+            ${sg.map((n,i)=>{
+              const oppP = oppSgPl.length>=2 ? oppSgPl[oppSgPl.length-1-i] : oppSgPl[0];
+              const fav  = oppP && SOL_HCP[n] < oppP.hcp;
+              return `<div style="display:flex;justify-content:space-between;margin-bottom:.15rem">
+                <span style="font-size:.75rem;color:var(--t3);min-width:18px">P${i+1}</span>
+                <span style="font-weight:500;font-size:.82rem;flex:1">${n.split(' ')[0]} ${n.split(' ').slice(-1)[0]}</span>
+                <span class="ht">HCP ${SOL_HCP[n]}</span></div>
+              ${oppP?`<div style="font-size:.67rem;color:${fav?'var(--green)':'var(--t3)'};margin-bottom:.1rem;padding-left:1.1rem">mod ${oppP.name.split(' ').slice(-1)[0]} HCP${oppP.hcp} · ${(()=>{const diff=SOL_HCP[n]-oppP.hcp;const s=Math.round(Math.abs(diff)/2);return diff>1?`+${s} slag (modtager)`:diff<-1?`−${s} slag (giver)`:'Ens niveau';})()}</div>`:''}`;
+            }).join('')}
+          </div>
+        </div>
+        ${sitting.length?`<div style="font-size:.71rem;color:var(--t3)">Sidder over: ${sitting.map(n=>n.split(' ')[0]+' '+n.split(' ').slice(-1)[0]+' ('+playerLoad(n).total+'k)').join(', ')}</div>`:''}
+        ${result.captain?`<div style="font-size:.71rem;color:var(--t3);margin-top:.45rem;padding-top:.45rem;border-top:1px solid rgba(255,255,255,.05)">💡 ${result.captain}</div>`:''}
+      </div>`;
+    }).join('');
+
+    const projTable = `<div style="margin-top:.75rem;padding:.75rem 1rem;background:var(--bg4);border-radius:var(--rs)">
+      <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);font-weight:600;margin-bottom:.5rem">Forventet slutbelastning (min 3 per spiller)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem">
+        ${SOL_TRUPPEN.map(n=>{const f=projLoad[n];const c=f>=3?'var(--green)':f>=2?'var(--gold)':'var(--red)';
+          return `<span style="font-size:.78rem;padding:.25rem .6rem;background:var(--bg3);border-radius:6px;border:1px solid var(--brd2)">${n.split(' ')[0]}: <strong style="color:${c}">${f}</strong>k</span>`;
+        }).join('')}
+      </div></div>`;
+
+    html += section('Opstillingsanbefalinger','Alle kommende kampe · samme logik som Opstilling-fanen', recs + projTable);
+  }
+
+
+
+  // ── 4. MODSTANDEROVERSIGT ─────────────────────────────────────
+  const oppRows = Object.entries(OPP).map(([name,data])=>{
+    const sg=data.players.filter(p=>p.apps.some(a=>a.format==='single')).sort((a,b)=>a.hcp-b.hcp);
+    const fs=data.players.filter(p=>p.apps.some(a=>a.format==='foursome'));
+    const fsRec=fs[0]?.apps.map(a=>a.result==='WIN'?'V':a.result==='LOSS'?'T':'D').join('')||'?';
+    const threat=sg.length&&sg[0].hcp<10?'⚠️ Farlig':sg.length&&sg.slice(-1)[0].hcp>20?'Overkommelig':'Middel';
+    return `<div style="padding:.65rem 0;border-bottom:1px solid rgba(255,255,255,.05)">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem">
+        <span style="font-weight:600;font-size:.88rem;flex:1">${name}</span>
+        <span class="b ${fsRec.includes('V')?'bl':fsRec.includes('T')?'bw':'bh'}" style="font-size:.63rem">Foursome: ${fsRec}</span>
+        <span class="b bp" style="font-size:.63rem">${threat}</span>
+      </div>
+      <div style="font-size:.75rem;color:var(--t3)">${data.notes}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.35rem">
+        ${sg.map(p=>`<span class="b bp" style="font-size:.62rem">🏌️ ${p.name.split(' ').slice(-1)[0]} HCP${p.hcp}</span>`).join('')}
+        ${fs.filter((p,i,a)=>i===0||p.apps[0]?.partner!==a[i-1].name).slice(0,1).map(p=>{const par=p.apps[0]?.partner||'';const parPl=fs.find(q=>q.name===par);return`<span class="b bp" style="font-size:.62rem">⛳ ${p.name.split(' ').slice(-1)[0]}${par?' / '+par.split(' ').slice(-1)[0]:''} HCP${p.hcp}${parPl?'/'+parPl.hcp:''}</span>`;}).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  html += section('Modstanderoversigt','Fra kampe i puljen', oppRows);
+
+  el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function go(name,el){
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='analyse') renderAnalyse();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+// Render immediately with cached data
+rebuildResults();
+rebuildOppData();
+rebuildStandings();
+renderAll();
+// Start background sync after render
+syncAll(false);
+</script>
+</body>
+</html>
