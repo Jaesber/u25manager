@@ -544,7 +544,8 @@ async function gfetch(url){
 }
 
 async function syncSchedule(){
-  const html=await gfetch(`https://tour.golfbox.dk/Interclub/scores.aspx?competition=5593554&dgu=1`);
+  return false; // competition URL requires GolfBox session — disabled
+  const html='';
   if(!html)return false;
   const doc=(new DOMParser()).parseFromString(html,'text/html');
   const lines=(doc.body?.innerText||'').split('\n').map(l=>l.trim()).filter(Boolean);
@@ -823,7 +824,7 @@ async function syncAll(force=false){
     }catch(_){ errors++; }
   }
 
-  try{ await syncSchedule(); }catch(_){}
+  // syncSchedule disabled — competition URL requires GolfBox session
 
   saveCache();
   syncing=false;
